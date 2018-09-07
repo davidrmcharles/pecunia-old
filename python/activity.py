@@ -5,20 +5,26 @@ For parsing account activity
 
 # Standard imports:
 import datetime
+import sys
+import traceback
 
 def parseFile(path):
     '''
     Parse the account-activity file at `path`.
     '''
 
-    pass  # TODO
+    transactions = []
 
-def parseString(text):
-    '''
-    Parse the `text` of an account-activity file.
-    '''
+    with open(path, 'r') as activityFile:
+        line = activityFile.readline()
+        transactionKey = parseKeyLine(line)
+        for line in activityFile.readlines():
+            try:
+                transactions.append(parseLine(transactionKey, line))
+            except Exception:
+                traceback.print_exc()
 
-    pass  # TODO
+    return transactions
 
 def parseKeyLine(line):
     '''
@@ -26,7 +32,7 @@ def parseKeyLine(line):
     '''
 
     transactionKey = _TransactionKey()
-    tokens = line.split(',')
+    tokens = line.strip().split(',')
     for index, token in enumerate(tokens):
         if token.lower() in ('posting date', 'post date'):
             transactionKey.postDate = index
@@ -56,7 +62,7 @@ def parseLine(key, line):
 
     transaction = Transaction()
 
-    tokens = line.split(',')
+    tokens = _splitTransactionLine(line)
     transaction.type = _parseTransactionType(tokens[key.type])
     if key.transDate is not None:
         transaction.transDate = _parseTransactionDate(tokens[key.transDate])
@@ -65,6 +71,17 @@ def parseLine(key, line):
     transaction.amount = float(tokens[key.amount])
 
     return transaction
+
+def _splitTransactionLine(line):
+    maybeTokens = line.strip().split(',')
+
+    tokens = []
+    for maybeToken in maybeTokens:
+        if maybeToken.startswith(' ') and (len(maybeToken) > 1):
+            tokens[-1] = tokens[-1] + ',' + maybeToken
+        else:
+            tokens.append(maybeToken)
+    return tokens
 
 def _parseTransactionType(s):
     if s.lower() in ('misc_debit', 'sale'):
@@ -86,3 +103,7 @@ class Transaction(object):
         self.description = None
         self.amount = None
 
+if __name__ == '__main__':
+    transactions = []
+    for arg in sys.argv[1:]:
+        transactions.extend(parseFile(arg))

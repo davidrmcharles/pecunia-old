@@ -13,9 +13,6 @@ import activity
 class parseFileTestCase(unittest.TestCase):
     pass  # TODO
 
-class parseStringTestCase(unittest.TestCase):
-    pass  # TODO
-
 class parseKeyLineTestCase(unittest.TestCase):
 
     def test_debitCard(self):
@@ -66,6 +63,20 @@ class parseLineTestCase(unittest.TestCase):
         self.assertEqual(datetime.date(2018, 9, 6), transaction.postDate)
         self.assertEqual('''WALGREENS #1234''', transaction.description)
         self.assertEqual(-2.85, transaction.amount)
+
+    def test_creditCardWithCommaInDescription(self):
+        transaction = activity.parseLine(
+            self.creditKey,
+            '''Sale,08/18/2018,08/19/2018,THRIFT BOOKS GLOBAL, LLC,-43.87''')
+        self.assertIsNotNone(transaction)
+        self.assertEqual('debit', transaction.type)
+        self.assertEqual(datetime.date(2018, 8, 18), transaction.transDate)
+        self.assertEqual(datetime.date(2018, 8, 19), transaction.postDate)
+        self.assertEqual('THRIFT BOOKS GLOBAL, LLC', transaction.description)
+        self.assertEqual(-43.87, transaction.amount)
+
+class splitTransactionLineTestCase(unittest.TestCase):
+    pass  # TODO
 
 class parseTransactionTypeTestCase(unittest.TestCase):
     pass  # TODO
