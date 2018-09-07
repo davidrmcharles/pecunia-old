@@ -107,3 +107,19 @@ if __name__ == '__main__':
     transactions = []
     for arg in sys.argv[1:]:
         transactions.extend(parseFile(arg))
+
+    credits_ = 0.0
+    for transaction in transactions:
+        if transaction.amount > 0.0:
+            credits_ += transaction.amount
+
+    debits = 0.0
+    for transaction in transactions:
+        if transaction.amount < 0.0:
+            debits += transaction.amount
+
+    balance = credits_ + debits
+
+    sys.stdout.write(
+        'Parsed %d transactions with profile %.2f/%.2f/%.2f.\n' % (
+            len(transactions), credits_, debits, balance))
