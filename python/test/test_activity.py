@@ -84,8 +84,5 @@ class parseTransactionTypeTestCase(unittest.TestCase):
 class parseTransactionDateTestCase(unittest.TestCase):
     pass  # TODO
 
-class TransactionTestCase(unittest.TestCase):
-    pass  # TODO
-
 if __name__ == '__main__':
     unittest.main()

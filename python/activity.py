@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 '''
-For parsing account activity
+For importing account activity
 '''
 
 # Standard imports:
 import datetime
 import sys
 import traceback
+
+# Project imports:
+import transactions
 
 def parseFile(path):
     '''
@@ -60,7 +63,7 @@ def parseLine(key, line):
     Parse a single `line` of account activity.
     '''
 
-    transaction = Transaction()
+    transaction = transactions.Transaction()
 
     tokens = _splitTransactionLine(line)
     transaction.type = _parseTransactionType(tokens[key.type])
@@ -91,35 +94,11 @@ def _parseTransactionDate(s):
     month, day, year = s.split('/')
     return datetime.date(int(year), int(month), int(day))
 
-class Transaction(object):
-    '''
-    A single account-activity event
-    '''
-
-    def __init__(self):
-        self.type = None
-        self.transDate = None
-        self.postDate = None
-        self.description = None
-        self.amount = None
-
-if __name__ == '__main__':
+def main():
     transactions = []
     for arg in sys.argv[1:]:
         transactions.extend(parseFile(arg))
+    sys.stdout.write('Parsed %d transactions.\n' % len(transactions))
 
-    credits_ = 0.0
-    for transaction in transactions:
-        if transaction.amount > 0.0:
-            credits_ += transaction.amount
-
-    debits = 0.0
-    for transaction in transactions:
-        if transaction.amount < 0.0:
-            debits += transaction.amount
-
-    balance = credits_ + debits
-
-    sys.stdout.write(
-        'Parsed %d transactions with profile %.2f/%.2f/%.2f.\n' % (
-            len(transactions), credits_, debits, balance))
+if __name__ == '__main__':
+    main()
