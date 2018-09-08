@@ -8,7 +8,7 @@ import datetime
 import unittest
 
 # Project imports:
-import activity
+import importing
 
 class parseFileTestCase(unittest.TestCase):
     pass  # TODO
@@ -17,7 +17,7 @@ class parseKeyLineTestCase(unittest.TestCase):
 
     def test_debitCard(self):
         line = '''Details,Posting Date,Description,Amount,Type,Balance,Check or Slip #'''
-        transactionKey = activity.parseKeyLine(line)
+        transactionKey = importing.parseKeyLine(line)
         self.assertIsNotNone(transactionKey)
         self.assertEqual(4, transactionKey.type)
         self.assertEqual(None, transactionKey.transDate)
@@ -27,7 +27,7 @@ class parseKeyLineTestCase(unittest.TestCase):
 
     def test_creditCard(self):
         line = '''Type,Trans Date,Post Date,Description,Amount'''
-        transactionKey = activity.parseKeyLine(line)
+        transactionKey = importing.parseKeyLine(line)
         self.assertIsNotNone(transactionKey)
         self.assertEqual(0, transactionKey.type)
         self.assertEqual(1, transactionKey.transDate)
@@ -40,14 +40,14 @@ class TransactionKeyTestCase(unittest.TestCase):
 
 class parseLineTestCase(unittest.TestCase):
 
-    debitKey = activity.parseKeyLine(
+    debitKey = importing.parseKeyLine(
         '''Details,Posting Date,Description,Amount,Type,Balance,Check or Slip #''')
-    creditKey = activity.parseKeyLine(
+    creditKey = importing.parseKeyLine(
         '''Type,Trans Date,Post Date,Description,Amount''')
 
     def test_debitCardAtTraderJoes(self):
         line = '''DEBIT,09/07/2018,"POS DEBIT                TRADER JOE'S # 123        HAPPY        AZ",-10.80,MISC_DEBIT, ,,'''
-        transaction = activity.parseLine(self.debitKey, line)
+        transaction = importing.parseLine(self.debitKey, line)
         self.assertIsNotNone(transaction)
         self.assertEqual('debit', transaction.type)
         self.assertEqual(datetime.date(2018, 9, 7), transaction.postDate)
@@ -56,7 +56,7 @@ class parseLineTestCase(unittest.TestCase):
 
     def test_creditCardAtWalgreens(self):
         line = '''Sale,09/05/2018,09/06/2018,WALGREENS #1234,-2.85'''
-        transaction = activity.parseLine(self.creditKey, line)
+        transaction = importing.parseLine(self.creditKey, line)
         self.assertIsNotNone(transaction)
         self.assertEqual('debit', transaction.type)
         self.assertEqual(datetime.date(2018, 9, 5), transaction.transDate)
@@ -65,7 +65,7 @@ class parseLineTestCase(unittest.TestCase):
         self.assertEqual(-2.85, transaction.amount)
 
     def test_creditCardWithCommaInDescription(self):
-        transaction = activity.parseLine(
+        transaction = importing.parseLine(
             self.creditKey,
             '''Sale,08/18/2018,08/19/2018,THRIFT BOOKS GLOBAL, LLC,-43.87''')
         self.assertIsNotNone(transaction)
