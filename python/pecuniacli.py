@@ -31,18 +31,18 @@ def _parseOptions(args=None):
 
 def _createOptionParser():
     parser = argparse.ArgumentParser(
-        description='Import and classify transactions',
-        usage='''\
-pecunia <command>
-
-The commands are:
-    import
-    classify
-''')
-    parser.add_argument(
-        'command',
-        choices=['import', 'classify'],
-        help='The command to perform')
+        description='Import and classify transactions')
+    subparsers = parser.add_subparsers(
+        title='Command',
+        dest='command',
+        help='command to perform')
+    importParser = subparsers.add_parser('import', help='import transactions')
+    importParser.add_argument(
+        'inputFilePaths',
+        nargs='+',
+        help='input file path',
+        metavar='FILE')
+    subparsers.add_parser('classify', help='classify transactions')
     return parser
 
 def _importTransactions():
