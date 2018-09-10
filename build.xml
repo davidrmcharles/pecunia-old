@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<project name="pecunia" default="help">
+
+    <target name="help" description="Print this help message.">
+        <java classname="org.apache.tools.ant.Main">
+            <arg value="-projecthelp"/>
+            <arg value="-buildfile"/>
+            <arg value="${ant.file}"/>
+        </java>
+    </target>
+
+    <property name="test.files" value="test_*.py"/>
+    <target name="test" description="Run unit tests.">
+        <exec executable="python" failonerror="true">
+            <env key="PYTHONPATH" path="${basedir}/python"/>
+            <arg value="-m"/>
+            <arg value="unittest"/>
+            <arg value="discover"/>
+            <arg value="-s"/>
+            <arg value="${basedir}/python/test"/>
+            <arg value="-p"/>
+            <arg value="${test.files}"/>
+        </exec>
+    </target>
+
+</project>

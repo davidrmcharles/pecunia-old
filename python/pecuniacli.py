@@ -20,7 +20,6 @@ def main():
     if options.command == 'import':
         _importTransactions(options)
     elif options.command == 'classify':
-        sys.stdout.write('Classifying transactions.\n')
         _classifyTransactions()
 
 def _parseOptions(args=None):
@@ -41,7 +40,7 @@ def _createOptionParser():
         nargs='+',
         help='input file path',
         metavar='FILE')
-    subparsers.add_parser('classify', help='classify transactions')
+    # subparsers.add_parser('classify', help='classify transactions')
     return parser
 
 def _importTransactions(options):
