@@ -18,8 +18,7 @@ def main():
 
     options = _parseOptions()
     if options.command == 'import':
-        sys.stdout.write('Importing transactions.\n')
-        _importTransactions()
+        _importTransactions(options)
     elif options.command == 'classify':
         sys.stdout.write('Classifying transactions.\n')
         _classifyTransactions()
@@ -45,8 +44,24 @@ def _createOptionParser():
     subparsers.add_parser('classify', help='classify transactions')
     return parser
 
-def _importTransactions():
-    print 'importing...'  # TODO
+def _importTransactions(options):
+    sys.stdout.write('Importing transactions.\n')
+
+    transactions = []
+    for path in options.inputFilePaths:
+        transactions.extend(importing.parseFile(path))
+
+    sys.stdout.write('Imported %d transactions.\n' % len(transactions))
+
+    outputFilePath = './transactions.json'
+    with open(outputFilePath, 'w') as outputFile:
+        json.dump(
+            [t.jsonEncodable for t in transactions],
+            outputFile,
+            indent=4)
+
+    sys.stdout.write(
+        'Recorded transcations to file "%s".\n' % outputFilePath)
 
 def _classifyTransactions():
     print 'classifying...'  # TODO
