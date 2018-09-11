@@ -12,6 +12,7 @@ import sys
 
 # Project imports:
 import importing
+import transactions
 
 _thisFilePath = inspect.getfile(inspect.currentframe())
 _thisFolderPath = os.path.abspath(os.path.dirname(_thisFilePath))
@@ -46,31 +47,65 @@ def _createOptionParser():
         nargs='+',
         help='input file path',
         metavar='FILE')
-    # subparsers.add_parser('classify', help='classify transactions')
+    subparsers.add_parser('classify', help='classify transactions')
     return parser
+
+_cacheFilePath = os.path.join(
+    _rootFolderPath, 'private', 'transactions.json')
 
 def _importTransactions(options):
     sys.stdout.write('Importing transactions.\n')
 
-    transactions = []
+    transactions_ = []
     for path in options.inputFilePaths:
-        transactions.extend(importing.parseFile(path))
+        transactions_.extend(importing.parseFile(path))
 
-    sys.stdout.write('Imported %d transactions.\n' % len(transactions))
+    sys.stdout.write('Imported %d transactions.\n' % len(transactions_))
 
+    _storeTransactions(transactions_)
+
+    sys.stdout.write(
+        'Stored transcations to file "%s".\n' % _cacheFilePath)
+
+def _storeTransactions(transactions_):
     outputFilePath = os.path.join(
         _rootFolderPath, 'private', 'transactions.json')
     with open(outputFilePath, 'w') as outputFile:
         json.dump(
-            [t.jsonEncodable for t in transactions],
+            [t.jsonEncodable for t in transactions_],
             outputFile,
             indent=4)
 
-    sys.stdout.write(
-        'Recorded transcations to file "%s".\n' % outputFilePath)
-
 def _classifyTransactions():
-    print 'classifying...'  # TODO
+    sys.stdout.write('Classifying transactions.\n')
+
+    transactions_ = _loadTransactions()
+
+    sys.stdout.write('Loaded %d transactions.\n' % len(transactions_))
+
+    for t in transactions_:
+        sys.stdout.write('%s\n' % ('-' * 70))
+        sys.stdout.write('%s\n' % _formatTransaction(t))
+        sys.stdout.write('%s\n' % ('-' * 70))
+        raw_input('Enter tags: ')
+
+def _loadTransactions():
+    with open(_cacheFilePath, 'r') as cacheFile:
+        jsonDecodables = json.load(cacheFile)
+        transactions_ = [
+            transactions.Transaction.createFromJson(jsonDecodable)
+            for jsonDecodable in jsonDecodables
+            ]
+    return transactions_
+
+def _formatTransaction(transaction):
+    return '\n'.join([
+            'type:        %s' % transaction.type,
+            'transDate:   %s' % transaction.transDate,
+            'postDate:    %s' % transaction.postDate,
+            'description: %s' % transaction.description,
+            'amount:      %.2f' % transaction.amount
+            ])
 
 if __name__ == '__main__':
     main()
