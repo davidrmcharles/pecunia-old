@@ -56,15 +56,21 @@ class Transaction(object):
     def createFromJson(jsonDecodable):
         t = Transaction()
         t.type = jsonDecodable['type']
-        t.transDate = jsonDecodable['transDate']
-        t.postDate = jsonDecodable['postDate']
+
+        if t.transDate is not None:
+            t.transDate = _parseTransactionDate(jsonDecodable['transDate'])
+        if t.postDate is not None:
+            t.postDate = _parseTransaactionDate(jsonDecodable['postDate'])
+
         t.description = jsonDecodable['description']
         t.amount = jsonDecodable['amount']
-        try :
+        if 'tags' in jsonDecodable:
             t.tags = jsonDecodable['tags']
-        except KeyError:
-            pass
         return t
+
+def _parseTransactionDate(s):
+    month, day, year = s.split('-')
+    return datetime.date(int(year), int(month), int(day))
 
 def _cumulativeCredits(transactions):
     credits_ = 0.0
