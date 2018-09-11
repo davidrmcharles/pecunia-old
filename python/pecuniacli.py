@@ -5,11 +5,17 @@ A command-line interface to ``pecunia``
 
 # Standard imports:
 import argparse
+import inspect
 import json
+import os
 import sys
 
 # Project imports:
 import importing
+
+_thisFilePath = inspect.getfile(inspect.currentframe())
+_thisFolderPath = os.path.abspath(os.path.dirname(_thisFilePath))
+_rootFolderPath = os.path.dirname(_thisFolderPath)
 
 def main():
     '''
@@ -52,7 +58,8 @@ def _importTransactions(options):
 
     sys.stdout.write('Imported %d transactions.\n' % len(transactions))
 
-    outputFilePath = './transactions.json'
+    outputFilePath = os.path.join(
+        _rootFolderPath, 'private', 'transactions.json')
     with open(outputFilePath, 'w') as outputFile:
         json.dump(
             [t.jsonEncodable for t in transactions],
