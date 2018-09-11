@@ -50,6 +50,16 @@ class Transaction(object):
             'amount': self.amount,
             }
 
+    @staticmethod
+    def createFromJson(jsonDecodable):
+        t = Transaction()
+        t.type = jsonDecodable['type']
+        t.transDate = jsonDecodable['transDate']
+        t.postDate = jsonDecodable['postDate']
+        t.description = jsonDecodable['description']
+        t.amount = jsonDecodable['amount']
+        return t
+
 def _cumulativeCredits(transactions):
     credits_ = 0.0
     for transaction in transactions:
