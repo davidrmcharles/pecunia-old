@@ -22,7 +22,6 @@ class parseOptionsTestCase(unittest.TestCase):
         with self.assertRaises(SystemExit):
             pecuniacli._parseOptions(['import'])
 
-    @unittest.skip('Not implemented yet')
     def test_classifyCommand(self):
         options = pecuniacli._parseOptions(['classify'])
         self.assertEqual('classify', options.command)
@@ -36,7 +35,6 @@ class parseOptionsTestCase(unittest.TestCase):
         self.assertEqual('import', options.command)
         self.assertEqual(['foo.csv'], options.inputFilePaths)
 
-    @unittest.skip('Not implemented yet')
     def test_classifyCommandWithFile(self):
         with self.assertRaises(SystemExit):
             pecuniacli._parseOptions(['classify', 'foo.csv'])
