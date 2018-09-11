@@ -65,7 +65,8 @@ def _importTransactions(options):
     _storeTransactions(transactions_)
 
     sys.stdout.write(
-        'Stored transcations to file "%s".\n' % _cacheFilePath)
+        'Stored %d transcations to file "%s".\n' % (
+            len(transactions_), _cacheFilePath))
 
 def _storeTransactions(transactions_):
     outputFilePath = os.path.join(
@@ -83,11 +84,31 @@ def _classifyTransactions():
 
     sys.stdout.write('Loaded %d transactions.\n' % len(transactions_))
 
-    for t in transactions_:
-        sys.stdout.write('%s\n' % ('-' * 70))
-        sys.stdout.write('%s\n' % _formatTransaction(t))
-        sys.stdout.write('%s\n' % ('-' * 70))
-        raw_input('Enter tags: ')
+    for transaction in transactions_:
+        sys.stdout.write('''\
+Classifying this transaction:
+
+    ----------------------------------------------------------------------
+''')
+        sys.stdout.write('%s\n' % _formatTransaction(transaction))
+        sys.stdout.write('''\
+    ----------------------------------------------------------------------
+
+Each whitespace-delimited token is either a COMMAND or TAG to add to
+this transaction.  Each token is processed in the order it appears.
+Here are the commands:
+
+    !quit:  Quit without saving
+    !save:  Save classification work to disk
+
+You may also simply press ENTER to skip to the next transaction.
+
+''')
+
+        _handleUserInput(
+            raw_input('>>> '),
+            transactions_,
+            transaction)
 
 def _loadTransactions():
     with open(_cacheFilePath, 'r') as cacheFile:
@@ -100,13 +121,27 @@ def _loadTransactions():
 
 def _formatTransaction(transaction):
     return '\n'.join([
-            'type:         %s' % transaction.type,
-            'transDate:    %s' % transaction.transDate,
-            'postDate:     %s' % transaction.postDate,
-            'description:  %s' % transaction.description,
-            'amount:       %.2f' % transaction.amount,
-            'tags:         %s' % ' '.join(transaction.tags),
+            '    type:         %s' % transaction.type,
+            '    transDate:    %s' % transaction.transDate,
+            '    postDate:     %s' % transaction.postDate,
+            '    description:  %s' % transaction.description,
+            '    amount:       %.2f' % transaction.amount,
+            '    tags:         %s' % ' '.join(transaction.tags),
             ])
+
+def _handleUserInput(rawInput, transactions_, transaction):
+    tokens = rawInput.strip().split()
+    for token in tokens:
+        if token.lower() in ('!quit', '!exit'):
+            raise SystemExit(0)
+        elif token.lower() in ('!store', '!save'):
+            _storeTransactions(transactions_)
+            sys.stdout.write(
+                'Stored %d transcations to file "%s".\n' % (
+                    len(transactions_), _cacheFilePath))
+        else:
+            transaction.tags.append(token)
+
 
 if __name__ == '__main__':
     main()
