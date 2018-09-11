@@ -16,6 +16,7 @@ class Transaction(object):
         self.postDate = None
         self.description = None
         self.amount = None
+        self.tags = []
 
     @property
     def transDateAsString(self):
@@ -48,6 +49,7 @@ class Transaction(object):
             'postDate': postDate,
             'description': self.description,
             'amount': self.amount,
+            'tags': self.tags,
             }
 
     @staticmethod
@@ -58,6 +60,10 @@ class Transaction(object):
         t.postDate = jsonDecodable['postDate']
         t.description = jsonDecodable['description']
         t.amount = jsonDecodable['amount']
+        try :
+            t.tags = jsonDecodable['tags']
+        except KeyError:
+            pass
         return t
 
 def _cumulativeCredits(transactions):

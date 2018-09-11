@@ -100,11 +100,12 @@ def _loadTransactions():
 
 def _formatTransaction(transaction):
     return '\n'.join([
-            'type:        %s' % transaction.type,
-            'transDate:   %s' % transaction.transDate,
-            'postDate:    %s' % transaction.postDate,
-            'description: %s' % transaction.description,
-            'amount:      %.2f' % transaction.amount
+            'type:         %s' % transaction.type,
+            'transDate:    %s' % transaction.transDate,
+            'postDate:     %s' % transaction.postDate,
+            'description:  %s' % transaction.description,
+            'amount:       %.2f' % transaction.amount,
+            'tags:         %s' % ' '.join(transaction.tags),
             ])
 
 if __name__ == '__main__':
