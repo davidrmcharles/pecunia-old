@@ -9,6 +9,9 @@ import unittest
 # Project imports:
 import pecuniacli
 
+class mainTestCase(unittest.TestCase):
+    pass
+
 class parseOptionsTestCase(unittest.TestCase):
 
     def test_noArgsRaises(self):
@@ -37,6 +40,24 @@ class parseOptionsTestCase(unittest.TestCase):
     def test_classifyCommandWithFile(self):
         with self.assertRaises(SystemExit):
             pecuniacli._parseOptions(['classify', 'foo.csv'])
+
+class createOptionParserTestCase(unittest.TestCase):
+    pass
+
+class importTransactionsTestCase(unittest.TestCase):
+    pass
+
+class storeTransactionsTestCase(unittest.TestCase):
+    pass
+
+class classifyTransactionsTestCase(unittest.TestCase):
+    pass
+
+class loadTransactionsTestCase(unittest.TestCase):
+    pass
+
+class formatTransactionsTestCase(unittest.TestCase):
+    pass
 
 if __name__ == '__main__':
     unittest.main()
