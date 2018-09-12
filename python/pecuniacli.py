@@ -27,7 +27,7 @@ def main():
     if options.command == 'import':
         _importTransactions(options)
     elif options.command == 'classify':
-        _classifyTransactions()
+        _classifyTransactions(options)
 
 def _parseOptions(args=None):
     parser = _createOptionParser()
@@ -47,7 +47,12 @@ def _createOptionParser():
         nargs='+',
         help='input file path',
         metavar='FILE')
-    subparsers.add_parser('classify', help='classify transactions')
+    classifyParser = subparsers.add_parser('classify', help='classify transactions')
+    classifyParser.add_argument(
+        '--no-tags',
+        action='store_true',
+        help='classify only transactions without tags',
+        dest='noTags')
     return parser
 
 _cacheFilePath = os.path.join(
@@ -77,14 +82,25 @@ def _storeTransactions(transactions_):
             outputFile,
             indent=4)
 
-def _classifyTransactions():
+def _classifyTransactions(options):
     sys.stdout.write('Classifying transactions.\n')
 
-    transactions_ = _loadTransactions()
+    allTransactions = _loadTransactions()
 
-    sys.stdout.write('Loaded %d transactions.\n' % len(transactions_))
+    sys.stdout.write('Loaded %d transactions.\n' % len(allTransactions))
 
-    for transaction in transactions_:
+    if options.noTags:
+        filteredTransactions = [
+            t for t in allTransactions
+            if len(t.tags) == 0
+            ]
+    else:
+        filteredTransactions = allTransactions
+
+    sys.stdout.write(
+        'Filtered transactions down to %d in number.\n' % len(filteredTransactions))
+
+    for transaction in filteredTransactions:
         sys.stdout.write('''\
 Classifying this transaction:
 
@@ -107,7 +123,7 @@ You may also simply press ENTER to skip to the next transaction.
 
         _handleUserInput(
             raw_input('>>> '),
-            transactions_,
+            filteredTransactions,
             transaction)
 
 def _loadTransactions():
