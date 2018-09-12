@@ -49,7 +49,7 @@ class parseLineTestCase(unittest.TestCase):
         line = '''DEBIT,09/07/2018,"POS DEBIT                TRADER JOE'S # 123        HAPPY        AZ",-10.80,MISC_DEBIT, ,,'''
         transaction = importing.parseLine(self.debitKey, line)
         self.assertIsNotNone(transaction)
-        self.assertEqual('debit', transaction.type)
+        self.assertEqual('misc_debit', transaction.type)
         self.assertEqual(datetime.date(2018, 9, 7), transaction.postDate)
         self.assertEqual('''"POS DEBIT                TRADER JOE'S # 123        HAPPY        AZ"''', transaction.description)
         self.assertEqual(-10.80, transaction.amount)
@@ -58,7 +58,7 @@ class parseLineTestCase(unittest.TestCase):
         line = '''Sale,09/05/2018,09/06/2018,WALGREENS #1234,-2.85'''
         transaction = importing.parseLine(self.creditKey, line)
         self.assertIsNotNone(transaction)
-        self.assertEqual('debit', transaction.type)
+        self.assertEqual('sale', transaction.type)
         self.assertEqual(datetime.date(2018, 9, 5), transaction.transDate)
         self.assertEqual(datetime.date(2018, 9, 6), transaction.postDate)
         self.assertEqual('''WALGREENS #1234''', transaction.description)
@@ -69,7 +69,7 @@ class parseLineTestCase(unittest.TestCase):
             self.creditKey,
             '''Sale,08/18/2018,08/19/2018,THRIFT BOOKS GLOBAL, LLC,-43.87''')
         self.assertIsNotNone(transaction)
-        self.assertEqual('debit', transaction.type)
+        self.assertEqual('sale', transaction.type)
         self.assertEqual(datetime.date(2018, 8, 18), transaction.transDate)
         self.assertEqual(datetime.date(2018, 8, 19), transaction.postDate)
         self.assertEqual('THRIFT BOOKS GLOBAL, LLC', transaction.description)

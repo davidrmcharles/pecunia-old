@@ -23,9 +23,13 @@ def parseFile(path):
         transactionKey = parseKeyLine(line)
         for line in activityFile.readlines():
             try:
-                transactions.append(parseLine(transactionKey, line))
+                transaction = parseLine(transactionKey, line)
             except Exception:
                 traceback.print_exc()
+                continue
+
+            if transaction.type not in ('payment', 'acct_xfer'):
+                transactions.append(transaction)
 
     return transactions
 
@@ -87,8 +91,7 @@ def _splitTransactionLine(line):
     return tokens
 
 def _parseTransactionType(s):
-    if s.lower() in ('misc_debit', 'sale'):
-        return 'debit'
+    return s.lower()
 
 def _parseTransactionDate(s):
     month, day, year = s.split('/')
