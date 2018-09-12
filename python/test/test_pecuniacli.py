@@ -4,10 +4,22 @@ Tests for :mod:`pecunia`
 '''
 
 # Standard imports
+import contextlib
+import StringIO
+import sys
 import unittest
 
 # Project imports:
 import pecuniacli
+
+@contextlib.contextmanager
+def _captured_stderr():
+    errors = StringIO.StringIO()
+    sys.stderr = errors
+    try:
+        yield errors
+    finally:
+        sys.stderr = sys.__stderr__
 
 class mainTestCase(unittest.TestCase):
     pass
@@ -16,11 +28,13 @@ class parseOptionsTestCase(unittest.TestCase):
 
     def test_noArgsRaises(self):
         with self.assertRaises(SystemExit):
-            pecuniacli._parseOptions([])
+            with _captured_stderr():
+                pecuniacli._parseOptions([])
 
     def test_importCommand(self):
         with self.assertRaises(SystemExit):
-            pecuniacli._parseOptions(['import'])
+            with _captured_stderr():
+                pecuniacli._parseOptions(['import'])
 
     def test_classifyCommand(self):
         options = pecuniacli._parseOptions(['classify'])
@@ -41,16 +55,19 @@ class parseOptionsTestCase(unittest.TestCase):
 
     def test_invalidCommandRaises(self):
         with self.assertRaises(SystemExit):
-            pecuniacli._parseOptions(['not-a-command'])
+            with _captured_stderr():
+                pecuniacli._parseOptions(['not-a-command'])
 
     def test_importCommandWithFile(self):
-        options = pecuniacli._parseOptions(['import', 'foo.csv'])
-        self.assertEqual('import', options.command)
-        self.assertEqual(['foo.csv'], options.inputFilePaths)
+        with _captured_stderr():
+            options = pecuniacli._parseOptions(['import', 'foo.csv'])
+            self.assertEqual('import', options.command)
+            self.assertEqual(['foo.csv'], options.inputFilePaths)
 
     def test_classifyCommandWithFile(self):
         with self.assertRaises(SystemExit):
-            pecuniacli._parseOptions(['classify', 'foo.csv'])
+            with _captured_stderr():
+                pecuniacli._parseOptions(['classify', 'foo.csv'])
 
 class createOptionParserTestCase(unittest.TestCase):
     pass
