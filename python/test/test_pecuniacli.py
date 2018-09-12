@@ -26,11 +26,18 @@ class parseOptionsTestCase(unittest.TestCase):
         options = pecuniacli._parseOptions(['classify'])
         self.assertEqual('classify', options.command)
         self.assertFalse(options.noTags)
+        self.assertIsNone(options.descriptionRegex)
 
     def test_classifyCommandNoTags(self):
         options = pecuniacli._parseOptions(['classify', '--no-tags'])
         self.assertEqual('classify', options.command)
         self.assertTrue(options.noTags)
+        self.assertIsNone(options.descriptionRegex)
+
+    def test_classifyCommandDescriptionRegex(self):
+        options = pecuniacli._parseOptions(['classify', '--desc-regex=foo'])
+        self.assertEqual('classify', options.command)
+        self.assertEqual('foo', options.descriptionRegex)
 
     def test_invalidCommandRaises(self):
         with self.assertRaises(SystemExit):

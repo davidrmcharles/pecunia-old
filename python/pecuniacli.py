@@ -8,6 +8,7 @@ import argparse
 import inspect
 import json
 import os
+import re
 import sys
 
 # Project imports:
@@ -53,6 +54,11 @@ def _createOptionParser():
         action='store_true',
         help='classify only transactions without tags',
         dest='noTags')
+    classifyParser.add_argument(
+        '--desc-regex',
+        help='description regular expression',
+        metavar='REGEX',
+        dest='descriptionRegex')
     return parser
 
 _cacheFilePath = os.path.join(
@@ -89,23 +95,14 @@ def _classifyTransactions(options):
 
     sys.stdout.write('Loaded %d transactions.\n' % len(allTransactions))
 
-    if options.noTags:
-        filteredTransactions = [
-            t for t in allTransactions
-            if len(t.tags) == 0
-            ]
-    else:
-        filteredTransactions = allTransactions
+    filteredTransactions = _filterTransactions(allTransactions, options)
 
-    sys.stdout.write(
-        'Filtered transactions down to %d in number.\n' % len(filteredTransactions))
-
-    for transaction in filteredTransactions:
+    for index, transaction in enumerate(filteredTransactions):
         sys.stdout.write('''\
-Classifying this transaction:
+Classifying transaction %d of %d:
 
     ----------------------------------------------------------------------
-''')
+''' % (index + 1, len(filteredTransactions)))
         sys.stdout.write('%s\n' % _formatTransaction(transaction))
         sys.stdout.write('''\
     ----------------------------------------------------------------------
@@ -134,6 +131,48 @@ def _loadTransactions():
             for jsonDecodable in jsonDecodables
             ]
     return transactions_
+
+def _filterTransactions(allTransactions, options):
+    filteredTransactions = allTransactions
+
+    if options.noTags:
+        filteredTransactions = _filterTransactionsWithoutTags(
+            filteredTransactions)
+
+    if options.descriptionRegex is not None:
+        filteredTransactions = _filterTransactionsWithNonMatchingDescriptions(
+            filteredTransactions, options.descriptionRegex)
+
+    sys.stdout.write(
+        'After filtering, %d transactions remain.\n' % (
+            len(filteredTransactions)))
+
+    return filteredTransactions
+
+def _filterTransactionsWithoutTags(filteredTransactions):
+    beforeSize = len(filteredTransactions)
+    filteredTransactions = [
+        t for t in filteredTransactions
+        if len(t.tags) == 0
+        ]
+    afterSize = len(filteredTransactions)
+    sys.stdout.write(
+        'Filtered %d transactions without tags.\n' % (
+            beforeSize - afterSize))
+    return filteredTransactions
+
+def _filterTransactionsWithNonMatchingDescriptions(filteredTransactions,
+                                                   descriptionRegex):
+    beforeSize = len(filteredTransactions)
+    filteredTransactions = [
+        t for t in filteredTransactions
+        if re.search(descriptionRegex, t.description) is not None
+        ]
+    afterSize = len(filteredTransactions)
+    sys.stdout.write(
+        'Filtered %d transactions with non-matching description.\n' % (
+            beforeSize - afterSize))
+    return filteredTransactions
 
 def _formatTransaction(transaction):
     return '\n'.join([
