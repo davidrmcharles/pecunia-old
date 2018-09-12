@@ -122,8 +122,8 @@ def _loadTransactions():
 def _formatTransaction(transaction):
     return '\n'.join([
             '    type:         %s' % transaction.type,
-            '    transDate:    %s' % transaction.transDate,
-            '    postDate:     %s' % transaction.postDate,
+            '    transDate:    %s' % transaction.transDateAsString,
+            '    postDate:     %s' % transaction.postDateAsString,
             '    description:  %s' % transaction.description,
             '    amount:       %.2f' % transaction.amount,
             '    tags:         %s' % ' '.join(transaction.tags),
@@ -141,7 +141,6 @@ def _handleUserInput(rawInput, transactions_, transaction):
                     len(transactions_), _cacheFilePath))
         else:
             transaction.tags.append(token)
-
 
 if __name__ == '__main__':
     main()

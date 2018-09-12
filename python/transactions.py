@@ -5,6 +5,9 @@ About transactions
 :class:`Transaction`
 '''
 
+# Standard imports:
+import datetime
+
 class Transaction(object):
     '''
     A single account-activity event
@@ -20,6 +23,8 @@ class Transaction(object):
 
     @property
     def transDateAsString(self):
+        if self.transDate is None:
+            return None
         return '%04d-%02d-%02d' % (
             self.transDate.year,
             self.transDate.month,
@@ -28,6 +33,8 @@ class Transaction(object):
 
     @property
     def postDateAsString(self):
+        if self.postDate is None:
+            return None
         return '%04d-%02d-%02d' % (
             self.postDate.year,
             self.postDate.month,
@@ -36,17 +43,10 @@ class Transaction(object):
 
     @property
     def jsonEncodable(self):
-        transDate = self.transDate
-        if transDate is not None:
-            transDate = self.transDateAsString
-
-        postDate = self.postDate
-        if postDate is not None:
-            postDate = self.postDateAsString
         return {
             'type': self.type,
-            'transDate': transDate,
-            'postDate': postDate,
+            'transDate': self.transDateAsString,
+            'postDate': self.postDateAsString,
             'description': self.description,
             'amount': self.amount,
             'tags': self.tags,
@@ -56,12 +56,8 @@ class Transaction(object):
     def createFromJson(jsonDecodable):
         t = Transaction()
         t.type = jsonDecodable['type']
-
-        if t.transDate is not None:
-            t.transDate = _parseTransactionDate(jsonDecodable['transDate'])
-        if t.postDate is not None:
-            t.postDate = _parseTransaactionDate(jsonDecodable['postDate'])
-
+        t.transDate = _parseTransactionDate(jsonDecodable['transDate'])
+        t.postDate = _parseTransactionDate(jsonDecodable['postDate'])
         t.description = jsonDecodable['description']
         t.amount = jsonDecodable['amount']
         if 'tags' in jsonDecodable:
@@ -69,7 +65,9 @@ class Transaction(object):
         return t
 
 def _parseTransactionDate(s):
-    month, day, year = s.split('-')
+    if s is None:
+        return None
+    year, month, day = s.split('-')
     return datetime.date(int(year), int(month), int(day))
 
 def _cumulativeCredits(transactions):
