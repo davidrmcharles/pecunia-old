@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-Tests for :mod:`pecunia`
+Tests for :mod:`pecuniacli`
 '''
 
 # Standard imports
