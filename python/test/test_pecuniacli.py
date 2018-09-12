@@ -70,5 +70,17 @@ class loadTransactionsTestCase(unittest.TestCase):
 class formatTransactionsTestCase(unittest.TestCase):
     pass
 
+class filterTransactionsTestCase(unittest.TestCase):
+    pass
+
+class filterTransactionsWithoutTagsTestCase(unittest.TestCase):
+    pass
+
+class filterTransactionsWithNonMatchingDescriptions(unittest.TestCase):
+    pass
+
+class handleUserInputTestCase(unittest.TestCase):
+    pass
+
 if __name__ == '__main__':
     unittest.main()
