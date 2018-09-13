@@ -120,8 +120,13 @@ You may also simply press ENTER to skip to the next transaction.
 
         _handleUserInput(
             raw_input('>>> '),
-            filteredTransactions,
+            allTransactions,
             transaction)
+
+    _storeTransactions(allTransactions)
+    sys.stdout.write(
+        'Stored %d transcations to file "%s".\n' % (
+            len(allTransactions), _cacheFilePath))
 
 def _loadTransactions():
     with open(_cacheFilePath, 'r') as cacheFile:
@@ -184,16 +189,16 @@ def _formatTransaction(transaction):
             '    tags:         %s' % ' '.join(transaction.tags),
             ])
 
-def _handleUserInput(rawInput, transactions_, transaction):
+def _handleUserInput(rawInput, allTransactions, transaction):
     tokens = rawInput.strip().split()
     for token in tokens:
         if token.lower() in ('!quit', '!exit'):
             raise SystemExit(0)
         elif token.lower() in ('!store', '!save'):
-            _storeTransactions(transactions_)
+            _storeTransactions(allTransactions)
             sys.stdout.write(
                 'Stored %d transcations to file "%s".\n' % (
-                    len(transactions_), _cacheFilePath))
+                    len(allTransactions), _cacheFilePath))
         else:
             transaction.tags.append(token)
 
