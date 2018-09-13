@@ -56,7 +56,7 @@ def _createOptionParser():
         dest='noTags')
     classifyParser.add_argument(
         '--desc-regex',
-        help='description regular expression',
+        help='classify only transactions with matching description',
         metavar='REGEX',
         dest='descriptionRegex')
     return parser
