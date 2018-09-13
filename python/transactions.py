@@ -19,7 +19,7 @@ class Transaction(object):
         self.postDate = None
         self.description = None
         self.amount = None
-        self.tags = []
+        self.tags = {}
 
     @property
     def transDateAsString(self):
@@ -62,6 +62,8 @@ class Transaction(object):
         t.amount = jsonDecodable['amount']
         if 'tags' in jsonDecodable:
             t.tags = jsonDecodable['tags']
+            if isinstance(t.tags, list):
+                t.tags = {tagName: None for tagName in t.tags}
         return t
 
 def _parseTransactionDate(s):

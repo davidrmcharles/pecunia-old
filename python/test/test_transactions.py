@@ -29,7 +29,7 @@ class TransactionTestCase(unittest.TestCase):
         souvenir.postDate = datetime.date(2018, 9, 7)
         souvenir.description = 'Fairyland Souvenir Shop'
         souvenir.amount = 12.34
-        souvenir.tags = []
+        souvenir.tags = {}
 
         self.assertEqual({
                 'type': 'debit',
@@ -37,11 +37,36 @@ class TransactionTestCase(unittest.TestCase):
                 'postDate': '2018-09-07',
                 'description': 'Fairyland Souvenir Shop',
                 'amount': 12.34,
-                'tags': [],
+                'tags': {},
                 },
             souvenir.jsonEncodable)
 
-    def test_createFromJson(self):
+    def test_createFromJson_tagsAsDict(self):
+        '''
+        Prove we can decode the tags in ``dict`` format, which has
+        superseded the ``list`` format.
+        '''
+
+        transaction = transactions.Transaction.createFromJson({
+                'type': 'debit',
+                'transDate': None,
+                'postDate': '2018-09-07',
+                'description': 'Fairyland Souvenir Shop',
+                'amount': 12.34,
+                'tags': {},
+                })
+        self.assertEqual('debit', transaction.type)
+        self.assertIsNone(None, transaction.transDate)
+        self.assertEqual(datetime.date(2018, 9, 7), transaction.postDate)
+        self.assertEqual('Fairyland Souvenir Shop', transaction.description)
+        self.assertEqual(12.34, transaction.amount)
+        self.assertEqual({}, transaction.tags)
+
+    def test_createFromJson_tagsAsList(self):
+        '''
+        Prove we can still decode, even when the tags are a ``list``.
+        '''
+
         transaction = transactions.Transaction.createFromJson({
                 'type': 'debit',
                 'transDate': None,
@@ -55,7 +80,7 @@ class TransactionTestCase(unittest.TestCase):
         self.assertEqual(datetime.date(2018, 9, 7), transaction.postDate)
         self.assertEqual('Fairyland Souvenir Shop', transaction.description)
         self.assertEqual(12.34, transaction.amount)
-        self.assertEqual([], transaction.tags)
+        self.assertEqual({}, transaction.tags)
 
 class parseTransactionDateTestCase(unittest.TestCase):
 
