@@ -27,6 +27,8 @@ def main():
     options = _parseOptions()
     if options.command == 'import':
         _importTransactions(options)
+    elif options.command == 'list':
+        _listTransactions(options)
     elif options.command == 'classify':
         _classifyTransactions(options)
 
@@ -42,12 +44,16 @@ def _createOptionParser():
         title='Command',
         dest='command',
         help='command to perform')
+
     importParser = subparsers.add_parser('import', help='import transactions')
     importParser.add_argument(
         'inputFilePaths',
         nargs='+',
         help='input file path',
         metavar='FILE')
+
+    listParser = subparsers.add_parser('list', help='list transactions')
+
     classifyParser = subparsers.add_parser('classify', help='classify transactions')
     classifyParser.add_argument(
         '--no-tags',
@@ -59,6 +65,7 @@ def _createOptionParser():
         help='classify only transactions with matching description',
         metavar='REGEX',
         dest='descriptionRegex')
+
     return parser
 
 _cacheFilePath = os.path.join(
@@ -87,6 +94,70 @@ def _storeTransactions(transactions_):
             [t.jsonEncodable for t in transactions_],
             outputFile,
             indent=4)
+
+def _listTransactions(options):
+    allTransactions = _loadTransactions()
+    for transaction in allTransactions:
+        sys.stdout.write(_formatTransactionForOneLine(transaction))
+        sys.stdout.write('\n')
+
+def _formatTransactionForOneLine(transaction):
+    return _TransactionOneLineFormatter(80).format(transaction)
+
+class _TransactionOneLineFormatter(object):
+
+    def __init__(self, width):
+        self._width = width
+
+    def format(self, transaction):
+        columnBudget = self._width
+
+        date = self._formatDate(transaction)
+        columnBudget -= (len(date) + 1)
+
+        amount = self._formatAmount(transaction)
+        columnBudget -= (len(amount) + 1)
+
+        tags = self._formatTags(transaction)
+        columnBudget -= len(tags)
+
+        spaceForDescription = columnBudget - 1
+        description = self._formatDescription(
+            transaction, spaceForDescription)
+
+        return '%s %s %s %s' % (
+            date, amount, description, tags)
+
+    def _formatDate(self, transaction):
+        if transaction.transDate is not None:
+            return transaction.transDateAsString
+        elif transaction.postDate is not None:
+            return transaction.postDateAsString
+        else:
+            return '????-??-??'
+
+    def _formatAmount(self, transaction):
+        return '%7.2f' % transaction.amount
+
+    def _formatTags(self, transaction):
+        return '[%s]' % '|'.join(transaction.tags.keys())
+
+    def _formatDescription(self, transaction, width):
+        description = self._collapseSpaces(transaction.description)
+        if len(description) > width:
+            description = self._truncateWithEllipses(description, width)
+        if len(description) < width:
+            description = self._extendWithSpaces(description, width)
+        return description
+
+    def _collapseSpaces(self, s):
+        return re.sub(r' {2,}', ' ', s)
+
+    def _truncateWithEllipses(self, s, width):
+        return s[:width - 3] + '...'
+
+    def _extendWithSpaces(self, s, width):
+        return '%s%s' % (s, (' ' * (width - len(s))))
 
 def _classifyTransactions(options):
     sys.stdout.write('Classifying transactions.\n')

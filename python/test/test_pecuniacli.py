@@ -49,6 +49,12 @@ class parseOptionsTestCase_import(unittest.TestCase):
             self.assertEqual('import', options.command)
             self.assertEqual(['foo.csv'], options.inputFilePaths)
 
+class parseOptionsTestCase_list(unittest.TestCase):
+
+    def test_noArgs(self):
+        options = pecuniacli._parseOptions(['list'])
+        self.assertEqual('list', options.command)
+
 class parseOptionsTestCase_classify(unittest.TestCase):
 
     def test_noArgs(self):
@@ -80,6 +86,12 @@ class importTransactionsTestCase(unittest.TestCase):
     pass
 
 class storeTransactionsTestCase(unittest.TestCase):
+    pass
+
+class listTransactionsTestCase(unittest.TestCase):
+    pass
+
+class TransactionOneLineFormatterTestCase(unittest.TestCase):
     pass
 
 class classifyTransactionsTestCase(unittest.TestCase):
