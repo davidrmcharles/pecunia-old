@@ -53,6 +53,16 @@ def _createOptionParser():
         metavar='FILE')
 
     listParser = subparsers.add_parser('list', help='list transactions')
+    listParser.add_argument(
+        '--no-tags',
+        action='store_true',
+        help='list only transactions without tags',
+        dest='noTags')
+    listParser.add_argument(
+        '--desc-regex',
+        help='classify only transactions with matching description',
+        metavar='REGEX',
+        dest='descriptionRegex')
 
     classifyParser = subparsers.add_parser('classify', help='classify transactions')
     classifyParser.add_argument(
@@ -97,7 +107,8 @@ def _storeTransactions(transactions_):
 
 def _listTransactions(options):
     allTransactions = _loadTransactions()
-    for transaction in allTransactions:
+    filteredTransactions = _filterTransactions(allTransactions, options)
+    for transaction in filteredTransactions:
         sys.stdout.write(_formatTransactionForOneLine(transaction))
         sys.stdout.write('\n')
 
