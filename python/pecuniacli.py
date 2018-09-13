@@ -109,6 +109,15 @@ Classifying transaction %d of %d:
 
 Each whitespace-delimited token is either a COMMAND or TAG to add to
 this transaction.  Each token is processed in the order it appears.
+
+To 'split' a transaction, append a colon and a dollar amount that
+represents the amount associated with the tag.  For example:
+
+    grocery cash:20.00
+
+In the above example, $20.00 of the total amount is tagged as cash,
+and the remaining balance of the transaction is tagged as grocery.
+
 Here are the commands:
 
     !quit:  Quit without saving
@@ -200,7 +209,14 @@ def _handleUserInput(rawInput, allTransactions, transaction):
                 'Stored %d transcations to file "%s".\n' % (
                     len(allTransactions), _cacheFilePath))
         else:
-            transaction.tags.append(token)
+            transaction.tags.update(_parseTag(token))
+
+def _parseTag(token):
+    if ':' in token:
+        tagName, tagAmount = token.split(':')
+        return {tagName: float(tagAmount)}
+    else:
+        return {token: None}
 
 if __name__ == '__main__':
     main()
