@@ -44,7 +44,12 @@ def _createOptionParser():
         title='Command',
         dest='command',
         help='command to perform')
+    _createOptionSubparser_import(subparsers)
+    _createOptionSubparser_list(subparsers)
+    _createOptionSubparser_classify(subparsers)
+    return parser
 
+def _createOptionSubparser_import(subparsers):
     importParser = subparsers.add_parser('import', help='import transactions')
     importParser.add_argument(
         'inputFilePaths',
@@ -52,6 +57,7 @@ def _createOptionParser():
         help='input file path',
         metavar='FILE')
 
+def _createOptionSubparser_list(subparsers):
     listParser = subparsers.add_parser('list', help='list transactions')
     listParser.add_argument(
         '--no-tags',
@@ -64,6 +70,7 @@ def _createOptionParser():
         metavar='REGEX',
         dest='descriptionRegex')
 
+def _createOptionSubparser_classify(subparsers):
     classifyParser = subparsers.add_parser('classify', help='classify transactions')
     classifyParser.add_argument(
         '--no-tags',
@@ -75,8 +82,6 @@ def _createOptionParser():
         help='classify only transactions with matching description',
         metavar='REGEX',
         dest='descriptionRegex')
-
-    return parser
 
 _cacheFilePath = os.path.join(
     _rootFolderPath, 'private', 'transactions.json')
