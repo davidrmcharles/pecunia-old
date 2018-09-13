@@ -31,40 +31,44 @@ class parseOptionsTestCase(unittest.TestCase):
             with _captured_stderr():
                 pecuniacli._parseOptions([])
 
-    def test_importCommand(self):
-        with self.assertRaises(SystemExit):
-            with _captured_stderr():
-                pecuniacli._parseOptions(['import'])
-
-    def test_classifyCommand(self):
-        options = pecuniacli._parseOptions(['classify'])
-        self.assertEqual('classify', options.command)
-        self.assertFalse(options.noTags)
-        self.assertIsNone(options.descriptionRegex)
-
-    def test_classifyCommandNoTags(self):
-        options = pecuniacli._parseOptions(['classify', '--no-tags'])
-        self.assertEqual('classify', options.command)
-        self.assertTrue(options.noTags)
-        self.assertIsNone(options.descriptionRegex)
-
-    def test_classifyCommandDescriptionRegex(self):
-        options = pecuniacli._parseOptions(['classify', '--desc-regex=foo'])
-        self.assertEqual('classify', options.command)
-        self.assertEqual('foo', options.descriptionRegex)
-
     def test_invalidCommandRaises(self):
         with self.assertRaises(SystemExit):
             with _captured_stderr():
                 pecuniacli._parseOptions(['not-a-command'])
 
-    def test_importCommandWithFile(self):
+class parseOptionsTestCase_import(unittest.TestCase):
+
+    def test_noArgsRaises(self):
+        with self.assertRaises(SystemExit):
+            with _captured_stderr():
+                pecuniacli._parseOptions(['import'])
+
+    def test_withFile(self):
         with _captured_stderr():
             options = pecuniacli._parseOptions(['import', 'foo.csv'])
             self.assertEqual('import', options.command)
             self.assertEqual(['foo.csv'], options.inputFilePaths)
 
-    def test_classifyCommandWithFile(self):
+class parseOptionsTestCase_classify(unittest.TestCase):
+
+    def test_noArgs(self):
+        options = pecuniacli._parseOptions(['classify'])
+        self.assertEqual('classify', options.command)
+        self.assertFalse(options.noTags)
+        self.assertIsNone(options.descriptionRegex)
+
+    def test_noTags(self):
+        options = pecuniacli._parseOptions(['classify', '--no-tags'])
+        self.assertEqual('classify', options.command)
+        self.assertTrue(options.noTags)
+        self.assertIsNone(options.descriptionRegex)
+
+    def test_descRegex(self):
+        options = pecuniacli._parseOptions(['classify', '--desc-regex=foo'])
+        self.assertEqual('classify', options.command)
+        self.assertEqual('foo', options.descriptionRegex)
+
+    def test_withFileRaises(self):
         with self.assertRaises(SystemExit):
             with _captured_stderr():
                 pecuniacli._parseOptions(['classify', 'foo.csv'])
