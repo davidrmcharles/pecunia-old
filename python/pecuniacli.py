@@ -237,6 +237,7 @@ def _loadTransactions():
             transactions.Transaction.createFromJson(jsonDecodable)
             for jsonDecodable in jsonDecodables
             ]
+    transactions_.sort(key=lambda t: t.date, reverse=True)
     return transactions_
 
 def _filterTransactions(allTransactions, options):

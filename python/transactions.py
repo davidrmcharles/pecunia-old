@@ -22,24 +22,30 @@ class Transaction(object):
         self.tags = {}
 
     @property
+    def date(self):
+        if self.transDate is not None:
+            return self.transDate
+        elif self.postDate is not None:
+            return self.postDate
+        return None
+
+    @property
+    def dateAsString(self):
+        if self.date is None:
+            return None
+        return _dateAsString(self.date)
+
+    @property
     def transDateAsString(self):
         if self.transDate is None:
             return None
-        return '%04d-%02d-%02d' % (
-            self.transDate.year,
-            self.transDate.month,
-            self.transDate.day
-            )
+        return _dateAsString(self.transDate)
 
     @property
     def postDateAsString(self):
         if self.postDate is None:
             return None
-        return '%04d-%02d-%02d' % (
-            self.postDate.year,
-            self.postDate.month,
-            self.postDate.day
-            )
+        return _dateAsString(self.postDate)
 
     @property
     def jsonEncodable(self):
@@ -65,6 +71,9 @@ class Transaction(object):
             if isinstance(t.tags, list):
                 t.tags = {tagName: None for tagName in t.tags}
         return t
+
+def _dateAsString(date):
+    return '%04d-%02d-%02d' % (date.year, date.month, date.day)
 
 def _parseTransactionDate(s):
     if s is None:
