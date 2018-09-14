@@ -50,7 +50,9 @@ def _createOptionParser():
     return parser
 
 def _createOptionSubparser_import(subparsers):
-    importParser = subparsers.add_parser('import', help='import transactions')
+    importParser = subparsers.add_parser(
+        'import',
+        help='import transactions')
     importParser.add_argument(
         'inputFilePaths',
         nargs='+',
@@ -58,7 +60,9 @@ def _createOptionSubparser_import(subparsers):
         metavar='FILE')
 
 def _createOptionSubparser_list(subparsers):
-    listParser = subparsers.add_parser('list', help='list transactions')
+    listParser = subparsers.add_parser(
+        'list',
+        help='list transactions')
     listParser.add_argument(
         '--no-tags',
         action='store_true',
@@ -71,7 +75,9 @@ def _createOptionSubparser_list(subparsers):
         dest='descriptionRegex')
 
 def _createOptionSubparser_classify(subparsers):
-    classifyParser = subparsers.add_parser('classify', help='classify transactions')
+    classifyParser = subparsers.add_parser(
+        'classify',
+        help='classify transactions')
     classifyParser.add_argument(
         '--no-tags',
         action='store_true',
