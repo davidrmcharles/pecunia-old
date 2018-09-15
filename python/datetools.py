@@ -11,6 +11,38 @@ For working with dates
 import datetime
 import sys
 
+class DateRange(object):
+
+    def __init__(self, first, last):
+        if (first, last) == (None, None):
+            raise ValueError('"(None, None)" is an invalid DateRange.')
+        self.first = first
+        self.last = last
+
+    def __contains__(self, date):
+        if not isinstance(date, datetime.date):
+            raise TypeError(
+                'Non-date "%s" was passed to DateRange.__contains__.' % date)
+        if self.first is None:
+            return date <= self.last
+        elif self.last is None:
+            return date >= self.first
+        else:
+            return (date >= self.first) and (date <= self.last)
+
+    def __eq__(self, other):
+        if not isinstance(other, DateRange):
+            return False
+        return (self.first == other.first) and (self.last == other.last)
+
+    def __ne__(self, other):
+        if not isinstance(other, DateRange):
+            return True
+        return (self.first != other.first) or (self.last != other.last)
+
+    def __hash__(self):
+        return hash((self.first, self.last))
+
 class DateParsingError(ValueError):
 
     def __init__(self, s):
@@ -51,7 +83,7 @@ def parseDateRange(s):
         if dates == [None, None]:
             raise DateParsingError('Dotdot only, no dates!')
 
-        return dates[0], dates[1]
+        return DateRange(dates[0], dates[1])
 
     except Exception as e:
         raise DateParsingError(

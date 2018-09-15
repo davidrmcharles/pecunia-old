@@ -10,6 +10,80 @@ import unittest
 # Project imports:
 import datetools
 
+class DateRangeTestCase_contains(unittest.TestCase):
+
+    def test_None(self):
+        with self.assertRaises(TypeError):
+            None in datetools.DateRange(
+                datetime.date(2018, 9, 12),
+                datetime.date(2018, 9, 14))
+
+    def test_middleOfBoundedRange(self):
+        self.assertTrue(
+            datetime.date(2018, 9, 13) in datetools.DateRange(
+                datetime.date(2018, 9, 12),
+                datetime.date(2018, 9, 14)))
+
+    def test_firstOfBoundedRange(self):
+        self.assertTrue(
+            datetime.date(2018, 9, 12) in datetools.DateRange(
+                datetime.date(2018, 9, 12),
+                datetime.date(2018, 9, 14)))
+
+    def test_lastOfBoundedRange(self):
+        self.assertTrue(
+            datetime.date(2018, 9, 14) in datetools.DateRange(
+                datetime.date(2018, 9, 12),
+                datetime.date(2018, 9, 14)))
+
+    def test_beforeFirstOfBoundedRange(self):
+        self.assertFalse(
+            datetime.date(2018, 9, 11) in datetools.DateRange(
+                datetime.date(2018, 9, 12),
+                datetime.date(2018, 9, 14)))
+
+    def test_afterLstOfBoundedRange(self):
+        self.assertFalse(
+            datetime.date(2018, 9, 15) in datetools.DateRange(
+                datetime.date(2018, 9, 12),
+                datetime.date(2018, 9, 14)))
+
+    def test_beforeLastOfOpenFirstRange(self):
+        self.assertTrue(
+            datetime.date(2018, 9, 13) in datetools.DateRange(
+                None,
+                datetime.date(2018, 9, 14)))
+
+    def test_onLastOfOpenFirstRange(self):
+        self.assertTrue(
+            datetime.date(2018, 9, 14) in datetools.DateRange(
+                None,
+                datetime.date(2018, 9, 14)))
+
+    def test_afterLastOfOpenFirstRange(self):
+        self.assertFalse(
+            datetime.date(2018, 9, 15) in datetools.DateRange(
+                None,
+                datetime.date(2018, 9, 14)))
+
+    def test_afterFirstOfOpenLastRange(self):
+        self.assertTrue(
+            datetime.date(2018, 9, 13) in datetools.DateRange(
+                datetime.date(2018, 9, 12),
+                None))
+
+    def test_onFirstOfOpenLastRange(self):
+        self.assertTrue(
+            datetime.date(2018, 9, 12) in datetools.DateRange(
+                datetime.date(2018, 9, 12),
+                None))
+
+    def test_beforeFirstOfOpenLastRange(self):
+        self.assertFalse(
+            datetime.date(2018, 9, 11) in datetools.DateRange(
+                datetime.date(2018, 9, 12),
+                None))
+
 class parseDateSequenceTestCase(unittest.TestCase):
 
     def test_None(self):
@@ -36,7 +110,7 @@ class parseDateSequenceTestCase(unittest.TestCase):
 
     def test_oneDateRange(self):
         self.assertEqual(
-            [(datetime.date(2018, 9, 13), datetime.date(2018, 9, 14))],
+            [datetools.DateRange(datetime.date(2018, 9, 13), datetime.date(2018, 9, 14))],
             datetools.parseDateSequence('2018-09-13..2018-09-14'))
 
 class parseDateRangeTestCase(unittest.TestCase):
@@ -63,12 +137,12 @@ class parseDateRangeTestCase(unittest.TestCase):
 
     def test_leadingDotdots(self):
         self.assertEqual(
-            (None, datetime.date(2018, 9, 14)),
+            datetools.DateRange(None, datetime.date(2018, 9, 14)),
             datetools.parseDateRange('..2018-09-14'))
 
     def test_trailingDotdots(self):
         self.assertEqual(
-            (datetime.date(2018, 9, 14), None),
+            datetools.DateRange(datetime.date(2018, 9, 14), None),
             datetools.parseDateRange('2018-09-14..'))
 
 class parseDateTestCase(unittest.TestCase):
