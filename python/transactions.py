@@ -2,11 +2,45 @@
 '''
 About transactions
 
+:func:`load`
+:func:`store`
+:func:`cacheFilePath`
 :class:`Transaction`
 '''
 
 # Standard imports:
 import datetime
+import inspect
+import json
+import os
+
+_thisFilePath = inspect.getfile(inspect.currentframe())
+_thisFolderPath = os.path.abspath(os.path.dirname(_thisFilePath))
+_rootFolderPath = os.path.dirname(_thisFolderPath)
+_cacheFilePath = os.path.join(
+    _rootFolderPath, 'private', 'transactions.json')
+
+def load():
+    with open(_cacheFilePath, 'r') as cacheFile:
+        jsonDecodables = json.load(cacheFile)
+        transactions = [
+            Transaction.createFromJson(jsonDecodable)
+            for jsonDecodable in jsonDecodables
+            ]
+    transactions.sort(key=lambda t: t.date, reverse=True)
+    return transactions
+
+def store(transactions):
+    outputFilePath = os.path.join(
+        _rootFolderPath, 'private', 'transactions.json')
+    with open(outputFilePath, 'w') as outputFile:
+        json.dump(
+            [t.jsonEncodable for t in transactions],
+            outputFile,
+            indent=4)
+
+def cacheFilePath():
+    return _cacheFilePath
 
 class Transaction(object):
     '''

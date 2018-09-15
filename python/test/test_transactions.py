@@ -11,6 +11,12 @@ import unittest
 # Project imports:
 import transactions
 
+class loadTransactionsTestCase(unittest.TestCase):
+    pass
+
+class storeTransactionsTestCase(unittest.TestCase):
+    pass
+
 class TransactionTestCase(unittest.TestCase):
 
     def test_transDateAsString_None(self):

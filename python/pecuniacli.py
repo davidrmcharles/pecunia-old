@@ -5,9 +5,6 @@ A command-line interface to ``pecunia``
 
 # Standard imports:
 import argparse
-import inspect
-import json
-import os
 import re
 import sys
 
@@ -17,10 +14,6 @@ import importing
 import filtering
 import formatting
 import transactions
-
-_thisFilePath = inspect.getfile(inspect.currentframe())
-_thisFolderPath = os.path.abspath(os.path.dirname(_thisFilePath))
-_rootFolderPath = os.path.dirname(_thisFolderPath)
 
 def main():
     '''
@@ -108,9 +101,6 @@ def _createOption_noTags(parser):
         help='consider only transactions without tags',
         dest='noTags')
 
-_cacheFilePath = os.path.join(
-    _rootFolderPath, 'private', 'transactions.json')
-
 def _importTransactions(options):
     sys.stdout.write('Importing transactions.\n')
 
@@ -124,26 +114,17 @@ def _importTransactions(options):
 
     sys.stdout.write(
         'Stored %d transcations to file "%s".\n' % (
-            len(transactions_), _cacheFilePath))
-
-def _storeTransactions(transactions_):
-    outputFilePath = os.path.join(
-        _rootFolderPath, 'private', 'transactions.json')
-    with open(outputFilePath, 'w') as outputFile:
-        json.dump(
-            [t.jsonEncodable for t in transactions_],
-            outputFile,
-            indent=4)
+            len(transactions_), transactions.cacheFilePath()))
 
 def _listTransactions(options):
-    allTransactions = _loadTransactions()
+    allTransactions = transactions.load()
     filteredTransactions = _filterTransactions(allTransactions, options)
     for transaction in filteredTransactions:
         sys.stdout.write(formatting.formatTransactionForOneLine(transaction))
         sys.stdout.write('\n')
 
 def _listTags(options):
-    allTransactions = _loadTransactions()
+    allTransactions = transactions.load()
     filteredTransactions = _filterTransactions(allTransactions, options)
     if len(filteredTransactions) == 0:
         return
@@ -173,7 +154,7 @@ def _listTags(options):
 def _classifyTransactions(options):
     sys.stdout.write('Classifying transactions.\n')
 
-    allTransactions = _loadTransactions()
+    allTransactions = transactions.load()
 
     sys.stdout.write('Loaded %d transactions.\n' % len(allTransactions))
 
@@ -214,20 +195,10 @@ You may also simply press ENTER to skip to the next transaction.
             allTransactions,
             transaction)
 
-    _storeTransactions(allTransactions)
+    transactions.store(allTransactions)
     sys.stdout.write(
         'Stored %d transcations to file "%s".\n' % (
-            len(allTransactions), _cacheFilePath))
-
-def _loadTransactions():
-    with open(_cacheFilePath, 'r') as cacheFile:
-        jsonDecodables = json.load(cacheFile)
-        transactions_ = [
-            transactions.Transaction.createFromJson(jsonDecodable)
-            for jsonDecodable in jsonDecodables
-            ]
-    transactions_.sort(key=lambda t: t.date, reverse=True)
-    return transactions_
+            len(allTransactions), transactions.cacheFilePath()))
 
 def _filterTransactions(allTransactions, options):
     filteredTransactions = filtering.filterTransactions(
@@ -245,10 +216,10 @@ def _handleUserInput(rawInput, allTransactions, transaction):
         if token.lower() in ('!quit', '!exit'):
             raise SystemExit(0)
         elif token.lower() in ('!store', '!save'):
-            _storeTransactions(allTransactions)
+            transactions.store(allTransactions)
             sys.stdout.write(
                 'Stored %d transcations to file "%s".\n' % (
-                    len(allTransactions), _cacheFilePath))
+                    len(allTransactions), transactions.cacheFilePath()))
         else:
             transaction.tags.update(_parseTag(token))
 

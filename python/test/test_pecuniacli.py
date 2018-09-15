@@ -119,9 +119,6 @@ class createOptionParserTestCase(unittest.TestCase):
 class importTransactionsTestCase(unittest.TestCase):
     pass
 
-class storeTransactionsTestCase(unittest.TestCase):
-    pass
-
 class listTransactionsTestCase(unittest.TestCase):
     pass
 
@@ -129,9 +126,6 @@ class TransactionOneLineFormatterTestCase(unittest.TestCase):
     pass
 
 class classifyTransactionsTestCase(unittest.TestCase):
-    pass
-
-class loadTransactionsTestCase(unittest.TestCase):
     pass
 
 class handleUserInputTestCase(unittest.TestCase):

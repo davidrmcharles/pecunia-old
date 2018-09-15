@@ -10,7 +10,9 @@ import unittest
 import filtering
 
 class filterTransactionsTestCase(unittest.TestCase):
-    pass
+
+    def test_emptyListAndNoOptions(self):
+        filtering.filterTransactions([], None)
 
 class filterTransactionsWithNonMatchingDates(unittest.TestCase):
     pass
