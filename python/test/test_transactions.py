@@ -29,7 +29,7 @@ class TransactionTestCase(unittest.TestCase):
         transaction.transDate = datetime.date(2018, 9, 11)
         self.assertEqual('2018-09-11', transaction.transDateAsString)
 
-    def test_jsonEncodable(self):
+    def test_encode(self):
         souvenir = transactions.Transaction()
         souvenir.type = 'debit'
         souvenir.postDate = datetime.date(2018, 9, 7)
@@ -45,15 +45,15 @@ class TransactionTestCase(unittest.TestCase):
                 'amount': 12.34,
                 'tags': {},
                 },
-            souvenir.jsonEncodable)
+            souvenir.encode())
 
-    def test_createFromJson_tagsAsDict(self):
+    def test_decode_tagsAsDict(self):
         '''
         Prove we can decode the tags in ``dict`` format, which has
         superseded the ``list`` format.
         '''
 
-        transaction = transactions.Transaction.createFromJson({
+        transaction = transactions.Transaction.decode({
                 'type': 'debit',
                 'transDate': None,
                 'postDate': '2018-09-07',
@@ -68,12 +68,12 @@ class TransactionTestCase(unittest.TestCase):
         self.assertEqual(12.34, transaction.amount)
         self.assertEqual({}, transaction.tags)
 
-    def test_createFromJson_tagsAsList(self):
+    def test_decode_tagsAsList(self):
         '''
         Prove we can still decode, even when the tags are a ``list``.
         '''
 
-        transaction = transactions.Transaction.createFromJson({
+        transaction = transactions.Transaction.decode({
                 'type': 'debit',
                 'transDate': None,
                 'postDate': '2018-09-07',

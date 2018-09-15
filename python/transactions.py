@@ -14,6 +14,9 @@ import inspect
 import json
 import os
 
+# Project imports:
+import datetools
+
 _thisFilePath = inspect.getfile(inspect.currentframe())
 _thisFolderPath = os.path.abspath(os.path.dirname(_thisFilePath))
 _rootFolderPath = os.path.dirname(_thisFolderPath)
@@ -24,18 +27,16 @@ def load():
     with open(_cacheFilePath, 'r') as cacheFile:
         jsonDecodables = json.load(cacheFile)
         transactions = [
-            Transaction.createFromJson(jsonDecodable)
+            Transaction.decode(jsonDecodable)
             for jsonDecodable in jsonDecodables
             ]
     transactions.sort(key=lambda t: t.date, reverse=True)
     return transactions
 
 def store(transactions):
-    outputFilePath = os.path.join(
-        _rootFolderPath, 'private', 'transactions.json')
-    with open(outputFilePath, 'w') as outputFile:
+    with open(_cacheFilePath, 'w') as outputFile:
         json.dump(
-            [t.jsonEncodable for t in transactions],
+            [t.encode() for t in transactions],
             outputFile,
             indent=4)
 
@@ -67,22 +68,21 @@ class Transaction(object):
     def dateAsString(self):
         if self.date is None:
             return None
-        return _dateAsString(self.date)
+        return datetools.dateAsString(self.date)
 
     @property
     def transDateAsString(self):
         if self.transDate is None:
             return None
-        return _dateAsString(self.transDate)
+        return datetools.dateAsString(self.transDate)
 
     @property
     def postDateAsString(self):
         if self.postDate is None:
             return None
-        return _dateAsString(self.postDate)
+        return datetools.dateAsString(self.postDate)
 
-    @property
-    def jsonEncodable(self):
+    def encode(self):
         return {
             'type': self.type,
             'transDate': self.transDateAsString,
@@ -93,7 +93,7 @@ class Transaction(object):
             }
 
     @staticmethod
-    def createFromJson(jsonDecodable):
+    def decode(jsonDecodable):
         t = Transaction()
         t.type = jsonDecodable['type']
         t.transDate = _parseTransactionDate(jsonDecodable['transDate'])
@@ -106,14 +106,10 @@ class Transaction(object):
                 t.tags = {tagName: None for tagName in t.tags}
         return t
 
-def _dateAsString(date):
-    return '%04d-%02d-%02d' % (date.year, date.month, date.day)
-
 def _parseTransactionDate(s):
     if s is None:
         return None
-    year, month, day = s.split('-')
-    return datetime.date(int(year), int(month), int(day))
+    return datetools.parseDate(s)
 
 def _cumulativeCredits(transactions):
     credits_ = 0.0
