@@ -70,6 +70,11 @@ def _createOptionSubparser_list(subparsers):
         'list',
         help='list transactions')
     listParser.add_argument(
+        '--dates',
+        type=datetools.parseDateSequence,
+        help='consider only transactions in a date range',
+        dest='dates')
+    listParser.add_argument(
         '--no-tags',
         action='store_true',
         help='list only transactions without tags',
@@ -94,6 +99,11 @@ def _createOptionSubparser_classify(subparsers):
     classifyParser = subparsers.add_parser(
         'classify',
         help='classify transactions')
+    classifyParser.add_argument(
+        '--dates',
+        type=datetools.parseDateSequence,
+        help='consider only transactions in a date range',
+        dest='dates')
     classifyParser.add_argument(
         '--no-tags',
         action='store_true',
