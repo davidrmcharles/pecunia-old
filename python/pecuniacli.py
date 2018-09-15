@@ -138,13 +138,25 @@ def _listTags(options):
 
     transactionsByTag = {}
     for transaction in allTransactions:
+        if len(transaction.tags) == 0:
+            if None not in transactionsByTag:
+                transactionsByTag[None] = []
+            transactionsByTag[None].append(transaction)
+
         for tag in transaction.tags.keys():
             if tag not in transactionsByTag:
                 transactionsByTag[tag] = []
             transactionsByTag[tag].append(transaction)
 
+    tagColumnWidth = max([
+            len(str(tag))
+            for tag in transactionsByTag.iterkeys()
+            ])
+
     for tag, transactionsWithTag in sorted(transactionsByTag.iteritems()):
-        sys.stdout.write('%s\n' % tag)
+        sys.stdout.write(
+            '%-*s  %d\n' % (
+                tagColumnWidth, tag, len(transactionsWithTag)))
 
 def _classifyTransactions(options):
     sys.stdout.write('Classifying transactions.\n')
