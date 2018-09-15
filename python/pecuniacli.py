@@ -56,62 +56,55 @@ def _createOptionParser():
     return parser
 
 def _createOptionSubparser_import(subparsers):
-    importParser = subparsers.add_parser(
+    parser = subparsers.add_parser(
         'import',
         help='import transactions')
-    importParser.add_argument(
+    parser.add_argument(
         'inputFilePaths',
         nargs='+',
         help='input file path',
         metavar='FILE')
 
 def _createOptionSubparser_list(subparsers):
-    listParser = subparsers.add_parser(
+    parser = subparsers.add_parser(
         'list',
         help='list transactions')
-    listParser.add_argument(
-        '--dates',
-        type=datetools.parseDateSequence,
-        help='consider only transactions in a date range',
-        dest='dates')
-    listParser.add_argument(
-        '--no-tags',
-        action='store_true',
-        help='list only transactions without tags',
-        dest='noTags')
-    listParser.add_argument(
-        '--desc-regex',
-        help='classify only transactions with matching description',
-        metavar='REGEX',
-        dest='descriptionRegex')
+    _createOption_dates(parser)
+    _createOption_noTags(parser)
+    _createOption_descRegex(parser)
 
 def _createOptionSubparser_tags(subparsers):
-    tagsParser = subparsers.add_parser(
+    parser = subparsers.add_parser(
         'tags',
         help='list tags')
-    tagsParser.add_argument(
+    _createOption_dates(parser)
+
+def _createOptionSubparser_classify(subparsers):
+    parser = subparsers.add_parser(
+        'classify',
+        help='classify transactions')
+    _createOption_dates(parser)
+    _createOption_noTags(parser)
+    _createOption_descRegex(parser)
+
+def _createOption_dates(parser):
+    parser.add_argument(
         '--dates',
         type=datetools.parseDateSequence,
         help='consider only transactions in a date range',
         dest='dates')
 
-def _createOptionSubparser_classify(subparsers):
-    classifyParser = subparsers.add_parser(
-        'classify',
-        help='classify transactions')
-    classifyParser.add_argument(
-        '--dates',
-        type=datetools.parseDateSequence,
-        help='consider only transactions in a date range',
-        dest='dates')
-    classifyParser.add_argument(
+def _createOption_noTags(parser):
+    parser.add_argument(
         '--no-tags',
         action='store_true',
-        help='classify only transactions without tags',
+        help='consider only transactions without tags',
         dest='noTags')
-    classifyParser.add_argument(
+
+def _createOption_descRegex(parser):
+    parser.add_argument(
         '--desc-regex',
-        help='classify only transactions with matching description',
+        help='consider only transactions with matching description',
         metavar='REGEX',
         dest='descriptionRegex')
 
