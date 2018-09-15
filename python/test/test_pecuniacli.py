@@ -128,23 +128,5 @@ class TransactionOneLineFormatterTestCase(unittest.TestCase):
 class classifyTransactionsTestCase(unittest.TestCase):
     pass
 
-class handleUserInputTestCase(unittest.TestCase):
-    pass
-
-class parseTagTestCase(unittest.TestCase):
-
-    def test_plainTag(self):
-        self.assertEqual(
-            {'food': None}, pecuniacli._parseTag('food'))
-
-    def test_tagWithSplit(self):
-        self.assertEqual(
-            {'cash': 20.00}, pecuniacli._parseTag('cash:20.00'))
-
-    @unittest.skip('TODO')
-    def test_tagWithSplitThatIsNotANumber(self):
-        self.assertEqual(
-            {}, pecuniacli._parseTag('cash:money'))
-
 if __name__ == '__main__':
     unittest.main()
