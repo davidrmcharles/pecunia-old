@@ -12,10 +12,13 @@ import filtering
 class filterTransactionsTestCase(unittest.TestCase):
     pass
 
-class filterTransactionsWithoutTagsTestCase(unittest.TestCase):
+class filterTransactionsWithNonMatchingDates(unittest.TestCase):
     pass
 
 class filterTransactionsWithNonMatchingDescriptions(unittest.TestCase):
+    pass
+
+class filterTransactionsWithoutTagsTestCase(unittest.TestCase):
     pass
 
 if __name__ == '__main__':

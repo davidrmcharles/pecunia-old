@@ -5,30 +5,26 @@ Transaction filtering
 def filterTransactions(allTransactions, options):
     filteredTransactions = allTransactions
 
-    if hasattr(options, 'noTags') and options.noTags:
-        filteredTransactions = _filterTransactionsWithoutTags(
-            filteredTransactions)
+    if hasattr(options, 'dates') and options.dates is not None:
+        filteredTransactions = _filterTransactionsWithNonMatchingDates(
+            filteredTransactions, options.dates)
 
     if hasattr(options, 'descriptionRegex') and options.descriptionRegex is not None:
         filteredTransactions = _filterTransactionsWithNonMatchingDescriptions(
             filteredTransactions, options.descriptionRegex)
 
-    if hasattr(options, 'dates') and options.dates is not None:
-        filteredTransactions = _filterTransactionsWithNonMatchingDates(
-            filteredTransactions, options.dates)
+    if hasattr(options, 'noTags') and options.noTags:
+        filteredTransactions = _filterTransactionsWithoutTags(
+            filteredTransactions)
 
     return filteredTransactions
 
-def _filterTransactionsWithoutTags(filteredTransactions):
-    beforeSize = len(filteredTransactions)
+def _filterTransactionsWithNonMatchingDates(filteredTransactions,
+                                            dateSequence):
     filteredTransactions = [
         t for t in filteredTransactions
-        if len(t.tags) == 0
+        if t.date in dateSequence
         ]
-    afterSize = len(filteredTransactions)
-    sys.stdout.write(
-        'Filtered %d transactions without tags.\n' % (
-            beforeSize - afterSize))
     return filteredTransactions
 
 def _filterTransactionsWithNonMatchingDescriptions(filteredTransactions,
@@ -44,10 +40,15 @@ def _filterTransactionsWithNonMatchingDescriptions(filteredTransactions,
             beforeSize - afterSize))
     return filteredTransactions
 
-def _filterTransactionsWithNonMatchingDates(filteredTransactions,
-                                            dateSequence):
+def _filterTransactionsWithoutTags(filteredTransactions):
+    beforeSize = len(filteredTransactions)
     filteredTransactions = [
         t for t in filteredTransactions
-        if t.date in dateSequence
+        if len(t.tags) == 0
         ]
+    afterSize = len(filteredTransactions)
+    sys.stdout.write(
+        'Filtered %d transactions without tags.\n' % (
+            beforeSize - afterSize))
     return filteredTransactions
+

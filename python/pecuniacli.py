@@ -70,8 +70,8 @@ def _createOptionSubparser_list(subparsers):
         'list',
         help='list transactions')
     _createOption_dates(parser)
-    _createOption_noTags(parser)
     _createOption_descRegex(parser)
+    _createOption_noTags(parser)
 
 def _createOptionSubparser_tags(subparsers):
     parser = subparsers.add_parser(
@@ -84,8 +84,8 @@ def _createOptionSubparser_classify(subparsers):
         'classify',
         help='classify transactions')
     _createOption_dates(parser)
-    _createOption_noTags(parser)
     _createOption_descRegex(parser)
+    _createOption_noTags(parser)
 
 def _createOption_dates(parser):
     parser.add_argument(
@@ -94,19 +94,19 @@ def _createOption_dates(parser):
         help='consider only transactions in a date range',
         dest='dates')
 
-def _createOption_noTags(parser):
-    parser.add_argument(
-        '--no-tags',
-        action='store_true',
-        help='consider only transactions without tags',
-        dest='noTags')
-
 def _createOption_descRegex(parser):
     parser.add_argument(
         '--desc-regex',
         help='consider only transactions with matching description',
         metavar='REGEX',
         dest='descriptionRegex')
+
+def _createOption_noTags(parser):
+    parser.add_argument(
+        '--no-tags',
+        action='store_true',
+        help='consider only transactions without tags',
+        dest='noTags')
 
 _cacheFilePath = os.path.join(
     _rootFolderPath, 'private', 'transactions.json')
