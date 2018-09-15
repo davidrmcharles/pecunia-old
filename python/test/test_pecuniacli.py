@@ -106,15 +106,6 @@ class classifyTransactionsTestCase(unittest.TestCase):
 class loadTransactionsTestCase(unittest.TestCase):
     pass
 
-class filterTransactionsTestCase(unittest.TestCase):
-    pass
-
-class filterTransactionsWithoutTagsTestCase(unittest.TestCase):
-    pass
-
-class filterTransactionsWithNonMatchingDescriptions(unittest.TestCase):
-    pass
-
 class handleUserInputTestCase(unittest.TestCase):
     pass
 

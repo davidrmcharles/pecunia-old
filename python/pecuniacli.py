@@ -13,6 +13,7 @@ import sys
 
 # Project imports:
 import importing
+import filtering
 import formatting
 import transactions
 
@@ -184,45 +185,13 @@ def _loadTransactions():
     return transactions_
 
 def _filterTransactions(allTransactions, options):
-    filteredTransactions = allTransactions
-
-    if options.noTags:
-        filteredTransactions = _filterTransactionsWithoutTags(
-            filteredTransactions)
-
-    if options.descriptionRegex is not None:
-        filteredTransactions = _filterTransactionsWithNonMatchingDescriptions(
-            filteredTransactions, options.descriptionRegex)
+    filteredTransactions = filtering.filterTransactions(
+        allTransactions, options)
 
     sys.stdout.write(
         'After filtering, %d transactions remain.\n' % (
             len(filteredTransactions)))
 
-    return filteredTransactions
-
-def _filterTransactionsWithoutTags(filteredTransactions):
-    beforeSize = len(filteredTransactions)
-    filteredTransactions = [
-        t for t in filteredTransactions
-        if len(t.tags) == 0
-        ]
-    afterSize = len(filteredTransactions)
-    sys.stdout.write(
-        'Filtered %d transactions without tags.\n' % (
-            beforeSize - afterSize))
-    return filteredTransactions
-
-def _filterTransactionsWithNonMatchingDescriptions(filteredTransactions,
-                                                   descriptionRegex):
-    beforeSize = len(filteredTransactions)
-    filteredTransactions = [
-        t for t in filteredTransactions
-        if re.search(descriptionRegex, t.description) is not None
-        ]
-    afterSize = len(filteredTransactions)
-    sys.stdout.write(
-        'Filtered %d transactions with non-matching description.\n' % (
-            beforeSize - afterSize))
     return filteredTransactions
 
 def _handleUserInput(rawInput, allTransactions, transaction):
