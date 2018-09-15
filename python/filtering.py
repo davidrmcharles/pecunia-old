@@ -2,6 +2,10 @@
 Transaction filtering
 '''
 
+# Standard imports:
+import re
+import sys
+
 def filterTransactions(allTransactions, options):
     filteredTransactions = allTransactions
 
