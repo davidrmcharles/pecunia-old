@@ -88,9 +88,6 @@ class TransactionTestCase(unittest.TestCase):
         self.assertEqual(12.34, transaction.amount)
         self.assertEqual({}, transaction.tags)
 
-class dateAsStringTestCase(unittest.TestCase):
-    pass
-
 class parseTransactionDateTestCase(unittest.TestCase):
 
     def test_None(self):
