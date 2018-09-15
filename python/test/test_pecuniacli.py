@@ -106,9 +106,6 @@ class classifyTransactionsTestCase(unittest.TestCase):
 class loadTransactionsTestCase(unittest.TestCase):
     pass
 
-class formatTransactionsTestCase(unittest.TestCase):
-    pass
-
 class filterTransactionsTestCase(unittest.TestCase):
     pass
 
