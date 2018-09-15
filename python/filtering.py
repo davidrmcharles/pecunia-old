@@ -5,13 +5,17 @@ Transaction filtering
 def filterTransactions(allTransactions, options):
     filteredTransactions = allTransactions
 
-    if options.noTags:
+    if hasattr(options, 'noTags') and options.noTags:
         filteredTransactions = _filterTransactionsWithoutTags(
             filteredTransactions)
 
-    if options.descriptionRegex is not None:
+    if hasattr(options, 'descriptionRegex') and options.descriptionRegex is not None:
         filteredTransactions = _filterTransactionsWithNonMatchingDescriptions(
             filteredTransactions, options.descriptionRegex)
+
+    if hasattr(options, 'dates') and options.dates is not None:
+        filteredTransactions = _filterTransactionsWithNonMatchingDates(
+            filteredTransactions, options.dates)
 
     return filteredTransactions
 
@@ -38,4 +42,12 @@ def _filterTransactionsWithNonMatchingDescriptions(filteredTransactions,
     sys.stdout.write(
         'Filtered %d transactions with non-matching description.\n' % (
             beforeSize - afterSize))
+    return filteredTransactions
+
+def _filterTransactionsWithNonMatchingDates(filteredTransactions,
+                                            dateSequence):
+    filteredTransactions = [
+        t for t in filteredTransactions
+        if t.date in dateSequence
+        ]
     return filteredTransactions

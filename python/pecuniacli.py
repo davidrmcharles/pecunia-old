@@ -12,6 +12,7 @@ import re
 import sys
 
 # Project imports:
+import datetools
 import importing
 import filtering
 import formatting
@@ -83,6 +84,11 @@ def _createOptionSubparser_tags(subparsers):
     tagsParser = subparsers.add_parser(
         'tags',
         help='list tags')
+    tagsParser.add_argument(
+        '--dates',
+        type=datetools.parseDateSequence,
+        help='consider only transactions in a date range',
+        dest='dates')
 
 def _createOptionSubparser_classify(subparsers):
     classifyParser = subparsers.add_parser(
@@ -135,9 +141,12 @@ def _listTransactions(options):
 
 def _listTags(options):
     allTransactions = _loadTransactions()
+    filteredTransactions = _filterTransactions(allTransactions, options)
+    if len(filteredTransactions) == 0:
+        return
 
     transactionsByTag = {}
-    for transaction in allTransactions:
+    for transaction in filteredTransactions:
         if len(transaction.tags) == 0:
             if None not in transactionsByTag:
                 transactionsByTag[None] = []

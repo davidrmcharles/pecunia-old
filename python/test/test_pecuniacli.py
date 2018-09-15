@@ -5,11 +5,13 @@ Tests for :mod:`pecuniacli`
 
 # Standard imports
 import contextlib
+import datetime
 import StringIO
 import sys
 import unittest
 
 # Project imports:
+import datetools
 import pecuniacli
 
 @contextlib.contextmanager
@@ -66,6 +68,26 @@ class parseOptionsTestCase_tags(unittest.TestCase):
     def test_noArgs(self):
         options = pecuniacli._parseOptions(['tags'])
         self.assertEqual('tags', options.command)
+        self.assertIsNone(options.dates)
+
+    def test_dates_noArg(self):
+        with self.assertRaises(SystemExit):
+            with _captured_stderr():
+                pecuniacli._parseOptions(['tags', '--dates'])
+
+    def test_dates_oneDate(self):
+        options = pecuniacli._parseOptions(['tags', '--date=2018-09-14'])
+        self.assertEqual(
+            datetools.DateSequence([datetime.date(2018, 9, 14)]),
+            options.dates)
+
+    def test_dates_afterDate(self):
+        options = pecuniacli._parseOptions(['tags', '--date=2018-09-14..'])
+        self.assertEqual(
+            datetools.DateSequence([
+                    datetools.DateRange(datetime.date(2018, 9, 14), None),
+                    ]),
+            options.dates)
 
 class parseOptionsTestCase_classify(unittest.TestCase):
 
