@@ -36,7 +36,7 @@ def _filterTransactionsWithNonMatchingDescriptions(filteredTransactions,
     beforeSize = len(filteredTransactions)
     filteredTransactions = [
         t for t in filteredTransactions
-        if re.search(descriptionRegex, t.description) is not None
+        if re.search(descriptionRegex, t.description, re.IGNORECASE) is not None
         ]
     afterSize = len(filteredTransactions)
     sys.stdout.write(
