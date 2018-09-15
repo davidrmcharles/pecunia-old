@@ -61,6 +61,12 @@ class parseOptionsTestCase_list(unittest.TestCase):
         self.assertEqual('list', options.command)
         self.assertTrue(options.noTags)
 
+class parseOptionsTestCase_tags(unittest.TestCase):
+
+    def test_noArgs(self):
+        options = pecuniacli._parseOptions(['tags'])
+        self.assertEqual('tags', options.command)
+
 class parseOptionsTestCase_classify(unittest.TestCase):
 
     def test_noArgs(self):

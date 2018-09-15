@@ -31,6 +31,8 @@ def main():
         _importTransactions(options)
     elif options.command == 'list':
         _listTransactions(options)
+    elif options.command == 'tags':
+        _listTags(options)
     elif options.command == 'classify':
         _classifyTransactions(options)
 
@@ -48,6 +50,7 @@ def _createOptionParser():
         help='command to perform')
     _createOptionSubparser_import(subparsers)
     _createOptionSubparser_list(subparsers)
+    _createOptionSubparser_tags(subparsers)
     _createOptionSubparser_classify(subparsers)
     return parser
 
@@ -75,6 +78,11 @@ def _createOptionSubparser_list(subparsers):
         help='classify only transactions with matching description',
         metavar='REGEX',
         dest='descriptionRegex')
+
+def _createOptionSubparser_tags(subparsers):
+    tagsParser = subparsers.add_parser(
+        'tags',
+        help='list tags')
 
 def _createOptionSubparser_classify(subparsers):
     classifyParser = subparsers.add_parser(
@@ -124,6 +132,19 @@ def _listTransactions(options):
     for transaction in filteredTransactions:
         sys.stdout.write(formatting.formatTransactionForOneLine(transaction))
         sys.stdout.write('\n')
+
+def _listTags(options):
+    allTransactions = _loadTransactions()
+
+    transactionsByTag = {}
+    for transaction in allTransactions:
+        for tag in transaction.tags.keys():
+            if tag not in transactionsByTag:
+                transactionsByTag[tag] = []
+            transactionsByTag[tag].append(transaction)
+
+    for tag, transactionsWithTag in sorted(transactionsByTag.iteritems()):
+        sys.stdout.write('%s\n' % tag)
 
 def _classifyTransactions(options):
     sys.stdout.write('Classifying transactions.\n')
