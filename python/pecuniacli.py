@@ -39,7 +39,7 @@ def _parseOptions(args=None):
 
 def _createOptionParser():
     parser = argparse.ArgumentParser(
-        description='Import and classify transactions')
+        description='Import and analyze bank-account activity')
     subparsers = parser.add_subparsers(
         title='Command',
         dest='command',
@@ -53,6 +53,7 @@ def _createOptionParser():
 def _createOptionSubparser_import(subparsers):
     parser = subparsers.add_parser(
         'import',
+        description='Import transactions from .csv files',
         help='import transactions')
     parser.add_argument(
         'inputFilePaths',
@@ -63,6 +64,7 @@ def _createOptionSubparser_import(subparsers):
 def _createOptionSubparser_list(subparsers):
     parser = subparsers.add_parser(
         'list',
+        description='List transactions',
         help='list transactions')
     _createOption_dates(parser)
     _createOption_descRegex(parser)
@@ -71,12 +73,14 @@ def _createOptionSubparser_list(subparsers):
 def _createOptionSubparser_tags(subparsers):
     parser = subparsers.add_parser(
         'tags',
+        description='List interesting facts about tags',
         help='list tags')
     _createOption_dates(parser)
 
 def _createOptionSubparser_classify(subparsers):
     parser = subparsers.add_parser(
         'classify',
+        description='Interactively classify transactions',
         help='classify transactions')
     _createOption_dates(parser)
     _createOption_descRegex(parser)
