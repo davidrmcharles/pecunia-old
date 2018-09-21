@@ -3,6 +3,7 @@ Transaction formatting for the console
 
 * :func:`formatTransactionForOneLine`
 * :func:`formatTransactionForDetail`
+* :class:`ConsoleTable`
 '''
 
 # Standard imports:
@@ -75,3 +76,61 @@ def formatTransactionForDetail(transaction):
             '    amount:       %.2f' % transaction.amount,
             '    tags:         %s' % ' '.join(transaction.tags),
             ])
+
+class ConsoleTable(object):
+
+    def __init__(self):
+        self.columns = []
+
+    def createColumn(self, title, tokens, alignment='right'):
+        self.columns.append(_ConsoleTableColumn(title, tokens, alignment))
+
+    def write(self, outputFile):
+        self._writeTitles(outputFile)
+        self._writeRows(outputFile)
+
+    def _writeTitles(self, outputFile):
+        outputFile.write(
+            '%-*s' % (
+                self.columns[0].width, self.columns[0].title))
+        for column in self.columns[1:]:
+            outputFile.write('  %*s' % (column.width, column.title))
+        outputFile.write('\n')
+
+    def _visitRows(self):
+        return zip(*[column.formattedTokens for column in self.columns])
+
+    def _writeRows(self, outputFile):
+        for formattedTokens in self._visitRows():
+            outputFile.write('%s' % formattedTokens[0])
+            for formattedToken in formattedTokens[1:]:
+                outputFile.write('  %s' % formattedToken)
+            outputFile.write('\n')
+
+class _ConsoleTableColumn(object):
+
+    def __init__(self, title, tokens, alignment='right'):
+        self.title = title
+        self.tokens = tokens
+        self.alignment = alignment
+
+    @property
+    def width(self):
+        return max([
+                len(token)
+                for token in [self.title] + self.tokens
+                ])
+
+    @property
+    def alignmentPattern(self):
+        if self.alignment == 'left':
+            return '%-*s'
+        elif self.alignment == 'right':
+            return '%*s'
+
+    @property
+    def formattedTokens(self):
+        return [
+            self.alignmentPattern % (self.width, token)
+            for token in self.tokens
+            ]

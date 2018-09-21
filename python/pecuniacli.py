@@ -5,6 +5,7 @@ A command-line interface to ``pecunia``
 
 # Standard imports:
 import argparse
+import collections
 import re
 import sys
 
@@ -130,27 +131,70 @@ def _listTags(options):
     if len(filteredTransactions) == 0:
         return
 
-    transactionsByTag = {}
-    for transaction in filteredTransactions:
-        if len(transaction.tags) == 0:
-            if None not in transactionsByTag:
-                transactionsByTag[None] = []
-            transactionsByTag[None].append(transaction)
+    transactionsByTag = _sortTransactionsByTag(filteredTransactions)
 
+    def mapTags(tokenFunc):
+        return [tokenFunc(tag) for tag in transactionsByTag.iterkeys()]
+
+    def mapTransactionLists(tokenFunc):
+        return [
+            tokenFunc(transactionList)
+            for transactionList in transactionsByTag.itervalues()
+            ]
+
+    def tagToken(s):
+        return str(s)
+
+    def countToken(transactions_):
+        return str(len(transactions_))
+
+    def expenseToken(transactions_):
+        return '{0:,.2f}'.format(
+            sum([t.amount for t in transactions_ if t.amount < 0]))
+
+    def incomeToken(transactions_):
+        return '{0:,.2f}'.format(
+            sum([t.amount for t in transactions_ if t.amount > 0]))
+
+    def volumeToken(transactions_):
+        return '{0:,.2f}'.format(
+            sum([abs(t.amount) for t in transactions_]))
+
+    def netToken(transactions_):
+        return '{0:,.2f}'.format(
+            sum([t.amount for t in transactions_]))
+
+    table = formatting.ConsoleTable()
+    table.createColumn('TAG', mapTags(tagToken), alignment='left')
+    table.createColumn('COUNT', mapTransactionLists(countToken))
+    table.createColumn('EXPENSE', mapTransactionLists(expenseToken))
+    table.createColumn('INCOME', mapTransactionLists(incomeToken))
+    table.createColumn('VOLUME', mapTransactionLists(volumeToken))
+    table.createColumn('NET', mapTransactionLists(netToken))
+    table.write(sys.stdout)
+
+def _sortTransactionsByTag(transactions_):
+    # Discover the full set of tags.
+    tags = set()
+    for transaction in transactions_:
+        if len(transaction.tags) == 0:
+            tags.add(None)
         for tag in transaction.tags.keys():
-            if tag not in transactionsByTag:
-                transactionsByTag[tag] = []
+            tags.add(tag)
+
+    # Create an alphabetically sorted mapping of tag onto empty lists.
+    transactionsByTag = collections.OrderedDict()
+    for tag in sorted(tags):
+        transactionsByTag[tag] = []
+
+    # Populate the lists with transactions.
+    for transaction in transactions_:
+        if len(transaction.tags) == 0:
+            transactionsByTag[None].append(transaction)
+        for tag in transaction.tags.keys():
             transactionsByTag[tag].append(transaction)
 
-    tagColumnWidth = max([
-            len(str(tag))
-            for tag in transactionsByTag.iterkeys()
-            ])
-
-    for tag, transactionsWithTag in sorted(transactionsByTag.iteritems()):
-        sys.stdout.write(
-            '%-*s  %d\n' % (
-                tagColumnWidth, tag, len(transactionsWithTag)))
+    return transactionsByTag
 
 def _classifyTransactions(options):
     sys.stdout.write('Classifying transactions.\n')

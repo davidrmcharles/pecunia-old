@@ -15,5 +15,8 @@ class formatTransactionForOneLineTestCase(unittest.TestCase):
 class formatTransactionForDetailTestCase(unittest.TestCase):
     pass
 
+class ConsoleTableTestCase(unittest.TestCase):
+    pass
+
 if __name__ == '__main__':
     unittest.main()
