@@ -2,4 +2,4 @@
 ``README`` for ``pecunia``
 ======================================================================
 
-Track, categorize, and plan expenses.
+Import and analyze bank-account activity
