@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 '''
 A command-line interface to ``pecunia``
+
+* :func:`main`
 '''
 
 # Standard imports:
@@ -33,79 +35,81 @@ def main():
         _classifyTransactions(options)
 
 def _parseOptions(args=None):
-    parser = _createOptionParser()
-    options = parser.parse_args(args)
-    return options
+    return _OptionParser().parse_args(args)
 
-def _createOptionParser():
-    parser = argparse.ArgumentParser(
-        description='Import and analyze bank-account activity')
-    subparsers = parser.add_subparsers(
-        title='Command',
-        dest='command',
-        help='command to perform')
-    _createOptionSubparser_import(subparsers)
-    _createOptionSubparser_list(subparsers)
-    _createOptionSubparser_tags(subparsers)
-    _createOptionSubparser_classify(subparsers)
-    return parser
+class _OptionParser(object):
 
-def _createOptionSubparser_import(subparsers):
-    parser = subparsers.add_parser(
-        'import',
-        description='Import transactions from .csv files',
-        help='import transactions')
-    parser.add_argument(
-        'inputFilePaths',
-        nargs='+',
-        help='input file path',
-        metavar='FILE')
+    def __init__(self):
+        self.parser = argparse.ArgumentParser(
+            description='Import and analyze bank-account activity')
+        self.subparsers = self.parser.add_subparsers(
+            title='Command',
+            dest='command',
+            help='command to perform')
+        self._createOptionSubparser_import()
+        self._createOptionSubparser_list()
+        self._createOptionSubparser_tags()
+        self._createOptionSubparser_classify()
 
-def _createOptionSubparser_list(subparsers):
-    parser = subparsers.add_parser(
-        'list',
-        description='List transactions',
-        help='list transactions')
-    _createOption_dates(parser)
-    _createOption_descRegex(parser)
-    _createOption_noTags(parser)
+    def parse_args(self, args=None):
+        return self.parser.parse_args(args)
 
-def _createOptionSubparser_tags(subparsers):
-    parser = subparsers.add_parser(
-        'tags',
-        description='List interesting facts about tags',
-        help='list tags')
-    _createOption_dates(parser)
+    def _createOptionSubparser_import(self):
+        parser = self.subparsers.add_parser(
+            'import',
+            description='Import transactions from .csv files',
+            help='import transactions')
+        parser.add_argument(
+            'inputFilePaths',
+            nargs='+',
+            help='input file path',
+            metavar='FILE')
 
-def _createOptionSubparser_classify(subparsers):
-    parser = subparsers.add_parser(
-        'classify',
-        description='Interactively classify transactions',
-        help='classify transactions')
-    _createOption_dates(parser)
-    _createOption_descRegex(parser)
-    _createOption_noTags(parser)
+    def _createOptionSubparser_list(self):
+        parser = self.subparsers.add_parser(
+            'list',
+            description='List transactions',
+            help='list transactions')
+        self._createOption_dates(parser)
+        self._createOption_descRegex(parser)
+        self._createOption_noTags(parser)
 
-def _createOption_dates(parser):
-    parser.add_argument(
-        '--dates',
-        type=datetools.parseDateSequence,
-        help='consider only transactions in a date range',
-        dest='dates')
+    def _createOptionSubparser_tags(self):
+        parser = self.subparsers.add_parser(
+            'tags',
+            description='List interesting facts about tags',
+            help='list tags')
+        self._createOption_dates(parser)
 
-def _createOption_descRegex(parser):
-    parser.add_argument(
-        '--desc-regex',
-        help='consider only transactions with matching description',
-        metavar='REGEX',
-        dest='descriptionRegex')
+    def _createOptionSubparser_classify(self):
+        parser = self.subparsers.add_parser(
+            'classify',
+            description='Interactively classify transactions',
+            help='classify transactions')
+        self._createOption_dates(parser)
+        self._createOption_descRegex(parser)
+        self._createOption_noTags(parser)
 
-def _createOption_noTags(parser):
-    parser.add_argument(
-        '--no-tags',
-        action='store_true',
-        help='consider only transactions without tags',
-        dest='noTags')
+    def _createOption_dates(self, parser):
+        parser.add_argument(
+            '--dates',
+            type=datetools.parseDateSequence,
+            help='consider only transactions in a date range',
+            dest='dates')
+
+    def _createOption_descRegex(self, parser):
+        parser.add_argument(
+            '--desc-regex',
+            help='consider only transactions with matching description',
+            metavar='REGEX',
+            dest='descriptionRegex')
+
+    def _createOption_noTags(self, parser):
+        parser.add_argument(
+            '--no-tags',
+            action='store_true',
+            help='consider only transactions without tags',
+            dest='noTags')
 
 def _importTransactions(options):
     sys.stdout.write('Importing transactions.\n')
