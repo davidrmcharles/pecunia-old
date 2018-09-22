@@ -5,4 +5,4 @@
 
 thisdir="$( cd "$( dirname "$0" )" && pwd )"
 basedir=$thisdir/../..
-diff $basedir/private/gold/transactions.json $basedir/private/transactions.json
+diff $@ $basedir/private/gold/transactions.json $basedir/private/transactions.json
