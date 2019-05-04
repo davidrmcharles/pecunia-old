@@ -10,30 +10,31 @@ import unittest
 # Project imports:
 import datetools
 
-class parseDateSequenceTestCase(unittest.TestCase):
+
+class parse_date_sequence_TestCase(unittest.TestCase):
 
     def test_None(self):
         with self.assertRaises(datetools.DateParsingError):
-            datetools.parseDateSequence(None)
+            datetools.parse_date_sequence(None)
 
     def test_emptyString(self):
         with self.assertRaises(datetools.DateParsingError):
-            datetools.parseDateSequence('')
+            datetools.parse_date_sequence('')
 
     def test_commaOnly(self):
         with self.assertRaises(datetools.DateParsingError):
-            datetools.parseDateSequence(',')
+            datetools.parse_date_sequence(',')
 
     def test_oneDate(self):
         self.assertEqual(
             datetools.DateSequence([datetime.date(2018, 9, 14)]),
-            datetools.parseDateSequence('2018-09-14'))
+            datetools.parse_date_sequence('2018-09-14'))
 
     def test_twoDates(self):
         self.assertEqual(
             datetools.DateSequence(
                 [datetime.date(2018, 9, 13), datetime.date(2018, 9, 14)]),
-            datetools.parseDateSequence('2018-09-13,2018-09-14'))
+            datetools.parse_date_sequence('2018-09-13,2018-09-14'))
 
     def test_oneDateRange(self):
         self.assertEqual(
@@ -41,74 +42,79 @@ class parseDateSequenceTestCase(unittest.TestCase):
                     datetools.DateRange(
                         datetime.date(2018, 9, 13),
                         datetime.date(2018, 9, 14))]),
-            datetools.parseDateSequence('2018-09-13..2018-09-14'))
+            datetools.parse_date_sequence('2018-09-13..2018-09-14'))
 
-class parseDateRangeTestCase(unittest.TestCase):
+
+class parse_date_range_TestCase(unittest.TestCase):
 
     def test_None(self):
         with self.assertRaises(datetools.DateParsingError):
-            datetools.parseDateRange(None)
+            datetools.parse_date_range(None)
 
     def test_emptyString(self):
         with self.assertRaises(datetools.DateParsingError):
-            datetools.parseDateRange('')
+            datetools.parse_date_range('')
 
     def test_dotdotOnly(self):
         with self.assertRaises(datetools.DateParsingError) as context:
-            datetools.parseDateRange('..')
+            datetools.parse_date_range('..')
 
     def test_noDotdots(self):
         with self.assertRaises(datetools.DateParsingError):
-            datetools.parseDateRange('2018-09-14')
+            datetools.parse_date_range('2018-09-14')
 
     def test_tooManyDotdots(self):
         with self.assertRaises(datetools.DateParsingError):
-            datetools.parseDateRange('..2018-09-14..')
+            datetools.parse_date_range('..2018-09-14..')
 
     def test_leadingDotdots(self):
         self.assertEqual(
             datetools.DateRange(None, datetime.date(2018, 9, 14)),
-            datetools.parseDateRange('..2018-09-14'))
+            datetools.parse_date_range('..2018-09-14'))
 
     def test_trailingDotdots(self):
         self.assertEqual(
             datetools.DateRange(datetime.date(2018, 9, 14), None),
-            datetools.parseDateRange('2018-09-14..'))
+            datetools.parse_date_range('2018-09-14..'))
 
     def test_adjacentDates(self):
         self.assertEqual(
             datetools.DateRange(
                 datetime.date(2018, 9, 14),
                 datetime.date(2018, 9, 15)),
-            datetools.parseDateRange('2018-09-14..2018-09-15'))
+            datetools.parse_date_range('2018-09-14..2018-09-15'))
 
     def test_reversedAdjacentdates(self):
         with self.assertRaises(datetools.InvalidDateRange):
-            datetools.parseDateRange('2018-09-15..2018-09-14')
+            datetools.parse_date_range('2018-09-15..2018-09-14')
 
-class parseDateTestCase(unittest.TestCase):
+
+class parse_date_TestCase(unittest.TestCase):
 
     def test_None(self):
         with self.assertRaises(datetools.DateParsingError):
-            datetools.parseDate(None)
+            datetools.parse_date(None)
 
     def test_donuts(self):
         with self.assertRaises(datetools.DateParsingError):
-            datetools.parseDate('donuts')
+            datetools.parse_date('donuts')
 
     def test_2018_09_14(self):
         self.assertEqual(
             datetime.date(2018, 9, 14),
-            datetools.parseDate('2018-09-14'))
+            datetools.parse_date('2018-09-14'))
 
-class dateAsStringTestCase(unittest.TestCase):
+
+class date_as_string_TestCase(unittest.TestCase):
     pass
+
 
 class DateSequenceTestCase_contains(unittest.TestCase):
 
     def test_None(self):
         with self.assertRaises(TypeError):
             None in datetools.DateSequence([])
+
 
 class DateRangeTestCase_contains(unittest.TestCase):
 
@@ -183,6 +189,7 @@ class DateRangeTestCase_contains(unittest.TestCase):
             datetime.date(2018, 9, 11) in datetools.DateRange(
                 datetime.date(2018, 9, 12),
                 None))
+
 
 if __name__ == '__main__':
     unittest.main()

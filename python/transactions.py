@@ -68,19 +68,19 @@ class Transaction(object):
     def dateAsString(self):
         if self.date is None:
             return None
-        return datetools.dateAsString(self.date)
+        return datetools.date_as_string(self.date)
 
     @property
     def transDateAsString(self):
         if self.transDate is None:
             return None
-        return datetools.dateAsString(self.transDate)
+        return datetools.date_as_string(self.transDate)
 
     @property
     def postDateAsString(self):
         if self.postDate is None:
             return None
-        return datetools.dateAsString(self.postDate)
+        return datetools.date_as_string(self.postDate)
 
     def encode(self):
         return {
@@ -109,7 +109,7 @@ class Transaction(object):
 def _parseTransactionDate(s):
     if s is None:
         return None
-    return datetools.parseDate(s)
+    return datetools.parse_date(s)
 
 def _cumulativeCredits(transactions):
     credits_ = 0.0

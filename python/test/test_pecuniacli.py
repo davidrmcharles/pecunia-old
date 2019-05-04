@@ -71,7 +71,7 @@ class parse_options_TestCase_list(unittest.TestCase):
         options = pecuniacli._parse_options(['list', '--dates=2019-05-03'])
         self.assertEqual('list', options.command)
         self.assertEqual(
-            datetools.DateSequence([datetools.parseDate('2019-05-03')]),
+            datetools.DateSequence([datetools.parse_date('2019-05-03')]),
             options.dates
         )
 

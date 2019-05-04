@@ -99,7 +99,7 @@ class _OptionParser(object):
     def _create_option_dates(self, parser):
         parser.add_argument(
             '--dates',
-            type=datetools.parseDateSequence,
+            type=datetools.parse_date_sequence,
             help='consider only transactions in a date range',
             dest='dates')
 

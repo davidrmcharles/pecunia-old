@@ -81,4 +81,3 @@ def _filter_transactions_without_tags(xactions):
         'Filtered %d transaction(s) for not having tags.\n' % (
             len(xactions) - len(filtered_xactions)))
     return filtered_xactions
-

@@ -2,10 +2,10 @@
 For working with dates
 
 Functions:
-* :func:`parseSequenceOfDates`
-* :func:`parseDateRange`
-* :func:`parseDate`
-* :func:`dateAsString`
+* :func:`parse_date_sequence`
+* :func:`parse_date_range`
+* :func:`parse_date`
+* :func:`date_as_string`
 
 Objects:
 * :class:`DateSequence`
@@ -21,14 +21,20 @@ Exceptions:
 import datetime
 import sys
 
-def parseDateSequence(s):
+
+def parse_date_sequence(s):
+    '''
+    Convert the string representation of a date sequence to its object
+    represenation.
+    '''
+
     try:
         dates = []
         for subtoken in s.split(','):
             if '..' in subtoken:
-                dates.append(parseDateRange(subtoken))
+                dates.append(parse_date_range(subtoken))
             else:
-                dates.append(parseDate(subtoken))
+                dates.append(parse_date(subtoken))
         return DateSequence(dates)
 
     except Exception as e:
@@ -37,7 +43,13 @@ def parseDateSequence(s):
                 '"%s" is not a date sequence.' % s), None, sys.exc_info()[2]
         raise
 
-def parseDateRange(s):
+
+def parse_date_range(s):
+    '''
+    Convert the string representation of a single date ranage to its
+    object representation.
+    '''
+
     try:
         subtokens = s.split('..')
 
@@ -51,7 +63,7 @@ def parseDateRange(s):
             if len(subtoken) == 0:
                 dates.append(None)
             else:
-                dates.append(parseDate(subtoken))
+                dates.append(parse_date(subtoken))
 
         if dates == [None, None]:
             raise DateParsingError('Dotdot only, no dates!')
@@ -64,7 +76,13 @@ def parseDateRange(s):
                 '"%s" is not a date range.' % s), None, sys.exc_info()[2]
         raise
 
-def parseDate(s):
+
+def parse_date(s):
+    '''
+    Convert the string representation of a single date to its
+    object representation.
+    '''
+
     try:
         year, month, day = s.split('-')
         return datetime.date(int(year), int(month), int(day))
@@ -74,10 +92,19 @@ def parseDate(s):
                 '"%s" is not a date.' % s), None, sys.exc_info()[2]
         raise
 
-def dateAsString(date):
+
+def date_as_string(date):
+    '''
+    Convert a `date` object to its string representation.
+    '''
+
     return '%04d-%02d-%02d' % (date.year, date.month, date.day)
 
+
 class DateSequence(object):
+    '''
+    A sequence of dates and date ranges
+    '''
 
     def __init__(self, dates):
         self.dates = dates
@@ -101,8 +128,8 @@ class DateSequence(object):
             return False
         if len(self.dates) != len(other.dates):
             return False
-        for selfDate, otherDate in zip(self.dates, other.dates):
-            if selfDate != otherDate:
+        for self_date, other_date in zip(self.dates, other.dates):
+            if self_date != other_date:
                 return False
         return True
 
@@ -111,15 +138,19 @@ class DateSequence(object):
             return True
         if len(self.dates) != len(other.dates):
             return True
-        for selfDate, otherDate in zip(self.dates, other.dates):
-            if selfDate != otherDate:
+        for self_date, other_date in zip(self.dates, other.dates):
+            if self_date != other_date:
                 return True
         return False
 
     def __hash__(self):
         return hash(tuple(self.dates))
 
+
 class DateRange(object):
+    '''
+    A single date range
+    '''
 
     def __init__(self, first, last):
         if (first, last) == (None, None):
@@ -158,17 +189,29 @@ class DateRange(object):
     def __hash__(self):
         return hash((self.first, self.last))
 
+
 class DateError(ValueError):
+    '''
+    Base of all date-related exceptions
+    '''
 
     def __init__(self, s):
         ValueError.__init__(self, s)
 
+
 class DateParsingError(DateError):
+    '''
+    A failure to parse a single date
+    '''
 
     def __init__(self, s):
         DateError.__init__(self, s)
 
+
 class InvalidDateRange(DateError):
+    '''
+    A failure to valiate a range of two successfully parsed dates
+    '''
 
     def __init__(self, s):
         DateError.__init__(self, s)
