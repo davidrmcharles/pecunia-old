@@ -1,65 +1,69 @@
 '''
 Transaction filtering
+
+* :func:`filter_transactions`
 '''
 
 # Standard imports:
 import re
 import sys
 
-def filterTransactions(allTransactions, options):
-    filteredTransactions = allTransactions
+
+def filter_transactions(xactions, options):
+    '''
+    Filter a list of transactions by certain criteria.
+    '''
+
+    filtered_xactions = xactions
 
     if hasattr(options, 'dates') and options.dates is not None:
-        filteredTransactions = _filterTransactionsWithNonMatchingDates(
-            filteredTransactions, options.dates)
+        filtered_xactions = _filter_transactions_with_non_matching_dates(
+            filtered_xactions, options.dates)
 
     if hasattr(options, 'include_regexs') and len(options.include_regexs) > 0:
-        filteredTransactions = _filterTransactionsWithNonMatchingDescriptions(
-            filteredTransactions, options.include_regexs)
+        filtered_xactions = _filter_transactions_with_non_matching_descriptions(
+            filtered_xactions, options.include_regexs)
 
     if hasattr(options, 'exclude_regexs') and len(options.exclude_regexs) > 0:
-        filteredTransactions = _filterTransactionsWithMatchingDescriptions(
-            filteredTransactions, options.exclude_regexs)
+        filtered_xactions = _filter_transactions_with_matching_descriptions(
+            filtered_xactions, options.exclude_regexs)
 
     if hasattr(options, 'no_tags') and options.no_tags:
-        filteredTransactions = _filterTransactionsWithoutTags(
-            filteredTransactions)
+        filtered_xactions = _filter_transactions_without_tags(
+            filtered_xactions)
 
-    return filteredTransactions
+    return filtered_xactions
 
-def _filterTransactionsWithNonMatchingDates(filteredTransactions,
-                                            dateSequence):
-    filteredTransactions = [
-        t for t in filteredTransactions
-        if t.date in dateSequence
-        ]
-    return filteredTransactions
 
-def _filterTransactionsWithNonMatchingDescriptions(filteredTransactions,
-                                                   regexs):
-    beforeSize = len(filteredTransactions)
-    filteredTransactions = [
-        t for t in filteredTransactions
-        if _any_regex_matches(regexs, t.description)
+def _filter_transactions_with_non_matching_dates(xactions, date_sequence):
+    filtered_xactions = [
+        x for x in xactions
+        if x.date in date_sequence
     ]
-    afterSize = len(filteredTransactions)
+    return filtered_xactions
+
+
+def _filter_transactions_with_non_matching_descriptions(xactions, regexs):
+    filtered_xactions = [
+        x for x in xactions
+        if _any_regex_matches(regexs, x.description)
+    ]
     sys.stdout.write(
         'Filtered %d transaction(s) for not matching include regex.\n' % (
-            beforeSize - afterSize))
-    return filteredTransactions
+            len(xactions) - len(filtered_xactions)))
+    return filtered_xactions
 
-def _filterTransactionsWithMatchingDescriptions(filteredTransactions,
-                                                regexs):
-    beforeSize = len(filteredTransactions)
-    filteredTransactions = [
-        t for t in filteredTransactions
-        if not _any_regex_matches(regexs, t.description)
+
+def _filter_transactions_with_matching_descriptions(xactions, regexs):
+    filtered_xactions = [
+        x for x in xactions
+        if not _any_regex_matches(regexs, x.description)
     ]
-    afterSize = len(filteredTransactions)
     sys.stdout.write(
         'Filtered %d transaction(s) for matching exclude regex.\n' % (
-            beforeSize - afterSize))
-    return filteredTransactions
+            len(xactions) - len(filtered_xactions)))
+    return filtered_xactions
+
 
 def _any_regex_matches(regexs, s):
     for regex in regexs:
@@ -67,15 +71,14 @@ def _any_regex_matches(regexs, s):
             return True
     return False
 
-def _filterTransactionsWithoutTags(filteredTransactions):
-    beforeSize = len(filteredTransactions)
-    filteredTransactions = [
-        t for t in filteredTransactions
-        if len(t.tags) == 0
-        ]
-    afterSize = len(filteredTransactions)
+
+def _filter_transactions_without_tags(xactions):
+    filtered_xactions = [
+        x for x in xactions
+        if len(x.tags) == 0
+    ]
     sys.stdout.write(
         'Filtered %d transaction(s) for not having tags.\n' % (
-            beforeSize - afterSize))
-    return filteredTransactions
+            len(xactions) - len(filtered_xactions)))
+    return filtered_xactions
 

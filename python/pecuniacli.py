@@ -293,7 +293,7 @@ class _ClassifyTransactionsCommand(object):
 
 
 def _filter_transactions(all_xactions, options):
-    filtered_xactions = filtering.filterTransactions(
+    filtered_xactions = filtering.filter_transactions(
         all_xactions, options)
 
     sys.stdout.write(
