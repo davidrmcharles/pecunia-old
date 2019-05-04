@@ -45,7 +45,7 @@ class _TransactionOneLineFormatter(object):
             return '????-??-??'
 
     def _formatAmount(self, transaction):
-        return '%7.2f' % transaction.amount
+        return '%8.2f' % transaction.amount
 
     def _formatTags(self, transaction):
         return '[%s]' % '|'.join(transaction.tags.keys())

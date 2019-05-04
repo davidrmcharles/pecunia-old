@@ -63,6 +63,11 @@ class parseOptionsTestCase_list(unittest.TestCase):
         self.assertEqual('list', options.command)
         self.assertTrue(options.noTags)
 
+    def test_total(self):
+        options = pecuniacli._parseOptions(['list', '--total'])
+        self.assertEqual('list', options.command)
+        self.assertTrue(options.printTotal)
+
 class parseOptionsTestCase_tags(unittest.TestCase):
 
     def test_noArgs(self):

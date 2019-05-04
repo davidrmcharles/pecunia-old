@@ -73,6 +73,7 @@ class _OptionParser(object):
         self._createOption_dates(parser)
         self._createOption_descRegex(parser)
         self._createOption_noTags(parser)
+        self._createOption_printTotal(parser)
 
     def _createOptionSubparser_tags(self):
         parser = self.subparsers.add_parser(
@@ -111,6 +112,13 @@ class _OptionParser(object):
             help='consider only transactions without tags',
             dest='noTags')
 
+    def _createOption_printTotal(self, parser):
+        parser.add_argument(
+            '--total',
+            action='store_true',
+            help='print total amount of listed transactions',
+            dest='printTotal')
+
 def _importTransactions(options):
     sys.stdout.write('Importing transactions.\n')
 
@@ -132,6 +140,14 @@ def _listTransactions(options):
     for transaction in filteredTransactions:
         sys.stdout.write(formatting.formatTransactionForOneLine(transaction))
         sys.stdout.write('\n')
+
+    if options.printTotal:
+        sys.stdout.write('%s\n' % ('-' * 80))
+        sys.stdout.write(
+            '           %8.2f\n' % sum([
+                t.amount for t in filteredTransactions
+            ])
+        )
 
 def _listTags(options):
     allTransactions = transactions.load()
