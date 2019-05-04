@@ -74,9 +74,9 @@ class _OptionParser(object):
             description='List transactions',
             help='list transactions')
         self._create_option_dates(parser)
-        self._create_option_descRegex(parser)
-        self._create_option_noTags(parser)
-        self._create_option_printTotal(parser)
+        self._create_option_description_regex(parser)
+        self._create_option_no_tags(parser)
+        self._create_option_print_total(parser)
 
     def _create_options_subparser_tags(self):
         parser = self.subparsers.add_parser(
@@ -91,8 +91,8 @@ class _OptionParser(object):
             description='Interactively classify transactions',
             help='classify transactions')
         self._create_option_dates(parser)
-        self._create_option_descRegex(parser)
-        self._create_option_noTags(parser)
+        self._create_option_description_regex(parser)
+        self._create_option_no_tags(parser)
 
     def _create_option_dates(self, parser):
         parser.add_argument(
@@ -101,26 +101,26 @@ class _OptionParser(object):
             help='consider only transactions in a date range',
             dest='dates')
 
-    def _create_option_descRegex(self, parser):
+    def _create_option_description_regex(self, parser):
         parser.add_argument(
             '--desc-regex',
             help='consider only transactions with matching description',
             metavar='REGEX',
-            dest='descriptionRegex')
+            dest='description_regex')
 
-    def _create_option_noTags(self, parser):
+    def _create_option_no_tags(self, parser):
         parser.add_argument(
             '--no-tags',
             action='store_true',
             help='consider only transactions without tags',
-            dest='noTags')
+            dest='no_tags')
 
-    def _create_option_printTotal(self, parser):
+    def _create_option_print_total(self, parser):
         parser.add_argument(
             '--total',
             action='store_true',
             help='print total amount of listed transactions',
-            dest='printTotal')
+            dest='print_total')
 
 
 class _ImportTransactionsCommand(object):
@@ -134,17 +134,17 @@ class _ImportTransactionsCommand(object):
     def do(self):
         sys.stdout.write('Importing transactions.\n')
 
-        transactions_ = []
+        xactions = []
         for path in self.options.inputFilePaths:
-            transactions_.extend(importing.parseFile(path))
+            xactions.extend(importing.parseFile(path))
 
-        sys.stdout.write('Imported %d transactions.\n' % len(transactions_))
+        sys.stdout.write('Imported %d transactions.\n' % len(xactions))
 
-        transactions.store(transactions_)
+        transactions.store(xactions)
 
         sys.stdout.write(
             'Stored %d transcations to file "%s".\n' % (
-                len(transactions_), transactions.cacheFilePath()))
+                len(xactions), transactions.cacheFilePath()))
 
 
 class _ListTransactionsCommand(object):
@@ -156,18 +156,18 @@ class _ListTransactionsCommand(object):
         self.options = options
 
     def do(self):
-        allTransactions = transactions.load()
-        filteredTransactions = _filter_transactions(
-            allTransactions, self.options)
-        for transaction in filteredTransactions:
-            sys.stdout.write(formatting.formatTransactionForOneLine(transaction))
+        all_xactions = transactions.load()
+        filtered_xactions = _filter_transactions(
+            all_xactions, self.options)
+        for xaction in filtered_xactions:
+            sys.stdout.write(formatting.formatTransactionForOneLine(xaction))
             sys.stdout.write('\n')
 
-        if self.options.printTotal:
+        if self.options.print_total:
             sys.stdout.write('%s\n' % ('-' * 80))
             sys.stdout.write(
                 '           %8.2f\n' % sum([
-                    t.amount for t in filteredTransactions
+                    x.amount for x in filtered_xactions
                 ])
             )
 
@@ -181,44 +181,44 @@ class _ListTagsCommand(object):
         self.options = options
 
     def do(self):
-        allTransactions = transactions.load()
-        filteredTransactions = _filter_transactions(
-            allTransactions, self.options)
-        if len(filteredTransactions) == 0:
+        all_xactions = transactions.load()
+        filtered_xactions = _filter_transactions(
+            all_xactions, self.options)
+        if len(filtered_xactions) == 0:
             return
 
-        transactionsByTag = _sort_transactions_by_tag(filteredTransactions)
+        xactions_by_tag = _sort_transactions_by_tag(filtered_xactions)
 
-        def map_tags(tokenFunc):
-            return [tokenFunc(tag) for tag in transactionsByTag.iterkeys()]
+        def map_tags(token_func):
+            return [token_func(tag) for tag in xactions_by_tag.iterkeys()]
 
-        def map_transaction_lists(tokenFunc):
+        def map_transaction_lists(token_func):
             return [
-                tokenFunc(transactionList)
-                for transactionList in transactionsByTag.itervalues()
+                token_func(xaction_list)
+                for xaction_list in xactions_by_tag.itervalues()
                 ]
 
         def tag_token(s):
             return str(s)
 
-        def countToken(transactions_):
-            return str(len(transactions_))
+        def countToken(xactions):
+            return str(len(xactions))
 
-        def expense_token(transactions_):
+        def expense_token(xactions):
             return '{0:,.2f}'.format(
-                sum([t.amount for t in transactions_ if t.amount < 0]))
+                sum([x.amount for x in xactions if x.amount < 0]))
 
-        def income_token(transactions_):
+        def income_token(xactions):
             return '{0:,.2f}'.format(
-                sum([t.amount for t in transactions_ if t.amount > 0]))
+                sum([x.amount for x in xactions if x.amount > 0]))
 
-        def volume_token(transactions_):
+        def volume_token(xactions):
             return '{0:,.2f}'.format(
-                sum([abs(t.amount) for t in transactions_]))
+                sum([abs(x.amount) for x in xactions]))
 
-        def net_token(transactions_):
+        def net_token(xactions):
             return '{0:,.2f}'.format(
-                sum([t.amount for t in transactions_]))
+                sum([x.amount for x in xactions]))
 
         table = formatting.ConsoleTable()
         table.createColumn('TAG', map_tags(tag_token), alignment='left')
@@ -230,28 +230,28 @@ class _ListTagsCommand(object):
         table.write(sys.stdout)
 
 
-def _sort_transactions_by_tag(transactions_):
+def _sort_transactions_by_tag(xactions):
     # Discover the full set of tags.
     tags = set()
-    for transaction in transactions_:
-        if len(transaction.tags) == 0:
+    for xaction in xactions:
+        if len(xaction.tags) == 0:
             tags.add(None)
-        for tag in transaction.tags.keys():
+        for tag in xaction.tags.keys():
             tags.add(tag)
 
     # Create an alphabetically sorted mapping of tag onto empty lists.
-    transactionsByTag = collections.OrderedDict()
+    xactions_by_tag = collections.OrderedDict()
     for tag in sorted(tags):
-        transactionsByTag[tag] = []
+        xactions_by_tag[tag] = []
 
     # Populate the lists with transactions.
-    for transaction in transactions_:
-        if len(transaction.tags) == 0:
-            transactionsByTag[None].append(transaction)
-        for tag in transaction.tags.keys():
-            transactionsByTag[tag].append(transaction)
+    for xaction in xactions:
+        if len(xaction.tags) == 0:
+            xactions_by_tag[None].append(xaction)
+        for tag in xaction.tags.keys():
+            xactions_by_tag[tag].append(xaction)
 
-    return transactionsByTag
+    return xactions_by_tag
 
 
 class _ClassifyTransactionsCommand(object):
@@ -265,29 +265,29 @@ class _ClassifyTransactionsCommand(object):
     def do(self):
         sys.stdout.write('Classifying transactions.\n')
 
-        allTransactions = transactions.load()
+        all_xactions = transactions.load()
 
-        sys.stdout.write('Loaded %d transactions.\n' % len(allTransactions))
+        sys.stdout.write('Loaded %d transactions.\n' % len(all_xactions))
 
-        filteredTransactions = _filter_transactions(allTransactions, self.options)
+        filtered_xactions = _filter_transactions(all_xactions, self.options)
 
-        classifying.classifyInteractively(allTransactions, filteredTransactions)
+        classifying.classifyInteractively(all_xactions, filtered_xactions)
 
-        transactions.store(allTransactions)
+        transactions.store(all_xactions)
         sys.stdout.write(
             'Stored %d transcations to file "%s".\n' % (
-                len(allTransactions), transactions.cacheFilePath()))
+                len(all_xactions), transactions.cacheFilePath()))
 
 
-def _filter_transactions(allTransactions, options):
-    filteredTransactions = filtering.filterTransactions(
-        allTransactions, options)
+def _filter_transactions(all_xactions, options):
+    filtered_xactions = filtering.filterTransactions(
+        all_xactions, options)
 
     sys.stdout.write(
         'After filtering, %d transactions remain.\n' % (
-            len(filteredTransactions)))
+            len(filtered_xactions)))
 
-    return filteredTransactions
+    return filtered_xactions
 
 
 if __name__ == '__main__':
