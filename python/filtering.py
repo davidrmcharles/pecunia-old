@@ -40,11 +40,11 @@ def _filterTransactionsWithNonMatchingDescriptions(filteredTransactions,
     beforeSize = len(filteredTransactions)
     filteredTransactions = [
         t for t in filteredTransactions
-        if _any_regex_matches(regex, t.description)
+        if _any_regex_matches(regexs, t.description)
     ]
     afterSize = len(filteredTransactions)
     sys.stdout.write(
-        'Filtered %d transactions with non-matching description.\n' % (
+        'Filtered %d transaction(s) for not matching include regex.\n' % (
             beforeSize - afterSize))
     return filteredTransactions
 
@@ -57,7 +57,7 @@ def _filterTransactionsWithMatchingDescriptions(filteredTransactions,
     ]
     afterSize = len(filteredTransactions)
     sys.stdout.write(
-        'Filtered %d transactions with non-matching description.\n' % (
+        'Filtered %d transaction(s) for matching exclude regex.\n' % (
             beforeSize - afterSize))
     return filteredTransactions
 
@@ -75,7 +75,7 @@ def _filterTransactionsWithoutTags(filteredTransactions):
         ]
     afterSize = len(filteredTransactions)
     sys.stdout.write(
-        'Filtered %d transactions without tags.\n' % (
+        'Filtered %d transaction(s) for not having tags.\n' % (
             beforeSize - afterSize))
     return filteredTransactions
 
