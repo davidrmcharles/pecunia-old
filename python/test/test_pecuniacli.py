@@ -108,18 +108,18 @@ class parse_options_TestCase_classify(unittest.TestCase):
         options = pecuniacli._parse_options(['classify'])
         self.assertEqual('classify', options.command)
         self.assertFalse(options.no_tags)
-        self.assertIsNone(options.description_regex)
+        self.assertIsNone(options.include_regex)
 
     def test_no_tags(self):
         options = pecuniacli._parse_options(['classify', '--no-tags'])
         self.assertEqual('classify', options.command)
         self.assertTrue(options.no_tags)
-        self.assertIsNone(options.description_regex)
+        self.assertIsNone(options.include_regex)
 
-    def test_description_regex(self):
-        options = pecuniacli._parse_options(['classify', '--desc-regex=foo'])
+    def test_include_regex(self):
+        options = pecuniacli._parse_options(['classify', '--include=foo'])
         self.assertEqual('classify', options.command)
-        self.assertEqual('foo', options.description_regex)
+        self.assertEqual('foo', options.include_regex)
 
     def test_with_file_raises(self):
         with self.assertRaises(SystemExit):
