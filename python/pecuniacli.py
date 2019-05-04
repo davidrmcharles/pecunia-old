@@ -19,6 +19,7 @@ import filtering
 import formatting
 import transactions
 
+
 def main():
     '''
     The command-line interface
@@ -26,16 +27,18 @@ def main():
 
     options = _parseOptions()
     if options.command == 'import':
-        _importTransactions(options)
+        _ImportTransactionsCommand(options).do()
     elif options.command == 'list':
-        _listTransactions(options)
+        _ListTransactionsCommand(options).do()
     elif options.command == 'tags':
-        _listTags(options)
+        _ListTagsCommand(options).do()
     elif options.command == 'classify':
-        _classifyTransactions(options)
+        _ClassifyTransactionsCommand(options).do()
+
 
 def _parseOptions(args=None):
     return _OptionParser().parse_args(args)
+
 
 class _OptionParser(object):
 
@@ -119,83 +122,113 @@ class _OptionParser(object):
             help='print total amount of listed transactions',
             dest='printTotal')
 
-def _importTransactions(options):
-    sys.stdout.write('Importing transactions.\n')
 
-    transactions_ = []
-    for path in options.inputFilePaths:
-        transactions_.extend(importing.parseFile(path))
+class _ImportTransactionsCommand(object):
+    '''
+    The ``import`` command
+    '''
 
-    sys.stdout.write('Imported %d transactions.\n' % len(transactions_))
+    def __init__(self, options):
+        self.options = options
 
-    _storeTransactions(transactions_)
+    def do(self):
+        sys.stdout.write('Importing transactions.\n')
 
-    sys.stdout.write(
-        'Stored %d transcations to file "%s".\n' % (
-            len(transactions_), transactions.cacheFilePath()))
+        transactions_ = []
+        for path in self.options.inputFilePaths:
+            transactions_.extend(importing.parseFile(path))
 
-def _listTransactions(options):
-    allTransactions = transactions.load()
-    filteredTransactions = _filterTransactions(allTransactions, options)
-    for transaction in filteredTransactions:
-        sys.stdout.write(formatting.formatTransactionForOneLine(transaction))
-        sys.stdout.write('\n')
+        sys.stdout.write('Imported %d transactions.\n' % len(transactions_))
 
-    if options.printTotal:
-        sys.stdout.write('%s\n' % ('-' * 80))
+        transactions.store(transactions_)
+
         sys.stdout.write(
-            '           %8.2f\n' % sum([
-                t.amount for t in filteredTransactions
-            ])
-        )
+            'Stored %d transcations to file "%s".\n' % (
+                len(transactions_), transactions.cacheFilePath()))
 
-def _listTags(options):
-    allTransactions = transactions.load()
-    filteredTransactions = _filterTransactions(allTransactions, options)
-    if len(filteredTransactions) == 0:
-        return
 
-    transactionsByTag = _sortTransactionsByTag(filteredTransactions)
+class _ListTransactionsCommand(object):
+    '''
+    The ``list`` command
+    '''
 
-    def mapTags(tokenFunc):
-        return [tokenFunc(tag) for tag in transactionsByTag.iterkeys()]
+    def __init__(self, options):
+        self.options = options
 
-    def mapTransactionLists(tokenFunc):
-        return [
-            tokenFunc(transactionList)
-            for transactionList in transactionsByTag.itervalues()
-            ]
+    def do(self):
+        allTransactions = transactions.load()
+        filteredTransactions = _filterTransactions(
+            allTransactions, self.options)
+        for transaction in filteredTransactions:
+            sys.stdout.write(formatting.formatTransactionForOneLine(transaction))
+            sys.stdout.write('\n')
 
-    def tagToken(s):
-        return str(s)
+        if self.options.printTotal:
+            sys.stdout.write('%s\n' % ('-' * 80))
+            sys.stdout.write(
+                '           %8.2f\n' % sum([
+                    t.amount for t in filteredTransactions
+                ])
+            )
 
-    def countToken(transactions_):
-        return str(len(transactions_))
 
-    def expenseToken(transactions_):
-        return '{0:,.2f}'.format(
-            sum([t.amount for t in transactions_ if t.amount < 0]))
+class _ListTagsCommand(object):
+    '''
+    The ``tags`` command
+    '''
 
-    def incomeToken(transactions_):
-        return '{0:,.2f}'.format(
-            sum([t.amount for t in transactions_ if t.amount > 0]))
+    def __init__(self, options):
+        self.options = options
 
-    def volumeToken(transactions_):
-        return '{0:,.2f}'.format(
-            sum([abs(t.amount) for t in transactions_]))
+    def do(self):
+        allTransactions = transactions.load()
+        filteredTransactions = _filterTransactions(
+            allTransactions, self.options)
+        if len(filteredTransactions) == 0:
+            return
 
-    def netToken(transactions_):
-        return '{0:,.2f}'.format(
-            sum([t.amount for t in transactions_]))
+        transactionsByTag = _sortTransactionsByTag(filteredTransactions)
 
-    table = formatting.ConsoleTable()
-    table.createColumn('TAG', mapTags(tagToken), alignment='left')
-    table.createColumn('COUNT', mapTransactionLists(countToken))
-    table.createColumn('EXPENSE', mapTransactionLists(expenseToken))
-    table.createColumn('INCOME', mapTransactionLists(incomeToken))
-    table.createColumn('VOLUME', mapTransactionLists(volumeToken))
-    table.createColumn('NET', mapTransactionLists(netToken))
-    table.write(sys.stdout)
+        def mapTags(tokenFunc):
+            return [tokenFunc(tag) for tag in transactionsByTag.iterkeys()]
+
+        def mapTransactionLists(tokenFunc):
+            return [
+                tokenFunc(transactionList)
+                for transactionList in transactionsByTag.itervalues()
+                ]
+
+        def tagToken(s):
+            return str(s)
+
+        def countToken(transactions_):
+            return str(len(transactions_))
+
+        def expenseToken(transactions_):
+            return '{0:,.2f}'.format(
+                sum([t.amount for t in transactions_ if t.amount < 0]))
+
+        def incomeToken(transactions_):
+            return '{0:,.2f}'.format(
+                sum([t.amount for t in transactions_ if t.amount > 0]))
+
+        def volumeToken(transactions_):
+            return '{0:,.2f}'.format(
+                sum([abs(t.amount) for t in transactions_]))
+
+        def netToken(transactions_):
+            return '{0:,.2f}'.format(
+                sum([t.amount for t in transactions_]))
+
+        table = formatting.ConsoleTable()
+        table.createColumn('TAG', mapTags(tagToken), alignment='left')
+        table.createColumn('COUNT', mapTransactionLists(countToken))
+        table.createColumn('EXPENSE', mapTransactionLists(expenseToken))
+        table.createColumn('INCOME', mapTransactionLists(incomeToken))
+        table.createColumn('VOLUME', mapTransactionLists(volumeToken))
+        table.createColumn('NET', mapTransactionLists(netToken))
+        table.write(sys.stdout)
+
 
 def _sortTransactionsByTag(transactions_):
     # Discover the full set of tags.
@@ -220,21 +253,31 @@ def _sortTransactionsByTag(transactions_):
 
     return transactionsByTag
 
-def _classifyTransactions(options):
-    sys.stdout.write('Classifying transactions.\n')
 
-    allTransactions = transactions.load()
+class _ClassifyTransactionsCommand(object):
+    '''
+    The ``classify`` command
+    '''
 
-    sys.stdout.write('Loaded %d transactions.\n' % len(allTransactions))
+    def __init__(self, options):
+        self.options = options
 
-    filteredTransactions = _filterTransactions(allTransactions, options)
+    def do(self):
+        sys.stdout.write('Classifying transactions.\n')
 
-    classifying.classifyInteractively(allTransactions, filteredTransactions)
+        allTransactions = transactions.load()
 
-    transactions.store(allTransactions)
-    sys.stdout.write(
-        'Stored %d transcations to file "%s".\n' % (
-            len(allTransactions), transactions.cacheFilePath()))
+        sys.stdout.write('Loaded %d transactions.\n' % len(allTransactions))
+
+        filteredTransactions = _filterTransactions(allTransactions, self.options)
+
+        classifying.classifyInteractively(allTransactions, filteredTransactions)
+
+        transactions.store(allTransactions)
+        sys.stdout.write(
+            'Stored %d transcations to file "%s".\n' % (
+                len(allTransactions), transactions.cacheFilePath()))
+
 
 def _filterTransactions(allTransactions, options):
     filteredTransactions = filtering.filterTransactions(
@@ -245,6 +288,7 @@ def _filterTransactions(allTransactions, options):
             len(filteredTransactions)))
 
     return filteredTransactions
+
 
 if __name__ == '__main__':
     main()
