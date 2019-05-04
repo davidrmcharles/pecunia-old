@@ -62,8 +62,8 @@ class parse_options_TestCase_list(unittest.TestCase):
         options = pecuniacli._parse_options(['list'])
         self.assertEqual('list', options.command)
         self.assertIsNone(options.dates)
-        self.assertIsNone(options.include_regex)
-        self.assertIsNone(options.exclude_regex)
+        self.assertEquals([], options.include_regexs)
+        self.assertEquals([], options.exclude_regexs)
         self.assertFalse(options.no_tags)
         self.assertFalse(options.print_total)
 
@@ -78,12 +78,18 @@ class parse_options_TestCase_list(unittest.TestCase):
     def test_include(self):
         options = pecuniacli._parse_options(['list', '--include=foo'])
         self.assertEqual('list', options.command)
-        self.assertEqual('foo', options.include_regex)
+        self.assertEqual(['foo'], options.include_regexs)
 
     def test_exclude(self):
         options = pecuniacli._parse_options(['list', '--exclude=foo'])
         self.assertEqual('list', options.command)
-        self.assertEqual('foo', options.exclude_regex)
+        self.assertEqual(['foo'], options.exclude_regexs)
+
+    def test_exclude_twice(self):
+        options = pecuniacli._parse_options([
+            'list', '--exclude=foo', '--exclude=bar'])
+        self.assertEqual('list', options.command)
+        self.assertEqual(['foo', 'bar'], options.exclude_regexs)
 
     @unittest.skip('TODO')
     def test_include_and_exclude_raises(self):
@@ -97,7 +103,7 @@ class parse_options_TestCase_list(unittest.TestCase):
         self.assertEqual('list', options.command)
         self.assertTrue(options.no_tags)
 
-    def test_print_total(self):
+    def test_print(self):
         options = pecuniacli._parse_options(['list', '--total'])
         self.assertEqual('list', options.command)
         self.assertTrue(options.print_total)
@@ -136,18 +142,18 @@ class parse_options_TestCase_classify(unittest.TestCase):
         options = pecuniacli._parse_options(['classify'])
         self.assertEqual('classify', options.command)
         self.assertFalse(options.no_tags)
-        self.assertIsNone(options.include_regex)
+        self.assertEquals([], options.include_regexs)
 
     def test_no_tags(self):
         options = pecuniacli._parse_options(['classify', '--no-tags'])
         self.assertEqual('classify', options.command)
         self.assertTrue(options.no_tags)
-        self.assertIsNone(options.include_regex)
+        self.assertEquals([], options.include_regexs)
 
-    def test_include_regex(self):
+    def test_include_regexs(self):
         options = pecuniacli._parse_options(['classify', '--include=foo'])
         self.assertEqual('classify', options.command)
-        self.assertEqual('foo', options.include_regex)
+        self.assertEqual(['foo'], options.include_regexs)
 
     def test_with_file_raises(self):
         with self.assertRaises(SystemExit):

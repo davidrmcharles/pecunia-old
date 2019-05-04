@@ -74,8 +74,8 @@ class _OptionParser(object):
             description='List transactions',
             help='list transactions')
         self._create_option_dates(parser)
-        self._create_option_include_regex(parser)
-        self._create_option_exclude_regex(parser)
+        self._create_option_include_regexs(parser)
+        self._create_option_exclude_regexs(parser)
         self._create_option_no_tags(parser)
         self._create_option_print_total(parser)
 
@@ -92,8 +92,8 @@ class _OptionParser(object):
             description='Interactively classify transactions',
             help='classify transactions')
         self._create_option_dates(parser)
-        self._create_option_include_regex(parser)
-        self._create_option_exclude_regex(parser)
+        self._create_option_include_regexs(parser)
+        self._create_option_exclude_regexs(parser)
         self._create_option_no_tags(parser)
 
     def _create_option_dates(self, parser):
@@ -103,19 +103,23 @@ class _OptionParser(object):
             help='consider only transactions in a date range',
             dest='dates')
 
-    def _create_option_include_regex(self, parser):
+    def _create_option_include_regexs(self, parser):
         parser.add_argument(
             '--include',
+            action='append',
+            default=[],
             help='consider only transactions with matching description',
             metavar='REGEX',
-            dest='include_regex')
+            dest='include_regexs')
 
-    def _create_option_exclude_regex(self, parser):
+    def _create_option_exclude_regexs(self, parser):
         parser.add_argument(
             '--exclude',
+            action='append',
+            default=[],
             help='consider only transactions with a non-matching description',
             metavar='REGEX',
-            dest='exclude_regex')
+            dest='exclude_regexs')
 
     def _create_option_no_tags(self, parser):
         parser.add_argument(
