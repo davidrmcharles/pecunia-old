@@ -61,8 +61,36 @@ class parse_options_TestCase_list(unittest.TestCase):
     def test_no_args(self):
         options = pecuniacli._parse_options(['list'])
         self.assertEqual('list', options.command)
+        self.assertIsNone(options.dates)
+        self.assertIsNone(options.include_regex)
+        self.assertIsNone(options.exclude_regex)
         self.assertFalse(options.no_tags)
         self.assertFalse(options.print_total)
+
+    def test_dates(self):
+        options = pecuniacli._parse_options(['list', '--dates=2019-05-03'])
+        self.assertEqual('list', options.command)
+        self.assertEqual(
+            datetools.DateSequence([datetools.parseDate('2019-05-03')]),
+            options.dates
+        )
+
+    def test_include(self):
+        options = pecuniacli._parse_options(['list', '--include=foo'])
+        self.assertEqual('list', options.command)
+        self.assertEqual('foo', options.include_regex)
+
+    def test_exclude(self):
+        options = pecuniacli._parse_options(['list', '--exclude=foo'])
+        self.assertEqual('list', options.command)
+        self.assertEqual('foo', options.exclude_regex)
+
+    @unittest.skip('TODO')
+    def test_include_and_exclude_raises(self):
+        with self.assertRaises(SystemExit):
+            with _captured_stderr():
+                pecuniacli._parse_options([
+                    'list', '--include=foo', '--exclude=foo'])
 
     def test_no_tags(self):
         options = pecuniacli._parse_options(['list', '--no-tags'])

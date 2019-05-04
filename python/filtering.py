@@ -13,11 +13,15 @@ def filterTransactions(allTransactions, options):
         filteredTransactions = _filterTransactionsWithNonMatchingDates(
             filteredTransactions, options.dates)
 
-    if hasattr(options, 'descriptionRegex') and options.descriptionRegex is not None:
+    if hasattr(options, 'include_regex') and options.include_regex is not None:
         filteredTransactions = _filterTransactionsWithNonMatchingDescriptions(
-            filteredTransactions, options.descriptionRegex)
+            filteredTransactions, options.include_regex)
 
-    if hasattr(options, 'noTags') and options.noTags:
+    if hasattr(options, 'exclude_regex') and options.exclude_regex is not None:
+        filteredTransactions = _filterTransactionsWithMatchingDescriptions(
+            filteredTransactions, options.exclude_regex)
+
+    if hasattr(options, 'no_tags') and options.no_tags:
         filteredTransactions = _filterTransactionsWithoutTags(
             filteredTransactions)
 
@@ -32,11 +36,24 @@ def _filterTransactionsWithNonMatchingDates(filteredTransactions,
     return filteredTransactions
 
 def _filterTransactionsWithNonMatchingDescriptions(filteredTransactions,
-                                                   descriptionRegex):
+                                                   regex):
     beforeSize = len(filteredTransactions)
     filteredTransactions = [
         t for t in filteredTransactions
-        if re.search(descriptionRegex, t.description, re.IGNORECASE) is not None
+        if re.search(regex, t.description, re.IGNORECASE) is not None
+        ]
+    afterSize = len(filteredTransactions)
+    sys.stdout.write(
+        'Filtered %d transactions with non-matching description.\n' % (
+            beforeSize - afterSize))
+    return filteredTransactions
+
+def _filterTransactionsWithMatchingDescriptions(filteredTransactions,
+                                                regex):
+    beforeSize = len(filteredTransactions)
+    filteredTransactions = [
+        t for t in filteredTransactions
+        if re.search(regex, t.description, re.IGNORECASE) is None
         ]
     afterSize = len(filteredTransactions)
     sys.stdout.write(
