@@ -25,7 +25,7 @@ def main():
     The command-line interface
     '''
 
-    options = _parseOptions()
+    options = _parse_options()
     if options.command == 'import':
         _ImportTransactionsCommand(options).do()
     elif options.command == 'list':
@@ -36,7 +36,7 @@ def main():
         _ClassifyTransactionsCommand(options).do()
 
 
-def _parseOptions(args=None):
+def _parse_options(args=None):
     return _OptionParser().parse_args(args)
 
 
@@ -49,15 +49,15 @@ class _OptionParser(object):
             title='Command',
             dest='command',
             help='command to perform')
-        self._createOptionSubparser_import()
-        self._createOptionSubparser_list()
-        self._createOptionSubparser_tags()
-        self._createOptionSubparser_classify()
+        self._create_options_subparser_import()
+        self._create_options_subparser_list()
+        self._create_options_subparser_tags()
+        self._create_options_subparser_classify()
 
     def parse_args(self, args=None):
         return self.parser.parse_args(args)
 
-    def _createOptionSubparser_import(self):
+    def _create_options_subparser_import(self):
         parser = self.subparsers.add_parser(
             'import',
             description='Import transactions from .csv files',
@@ -68,54 +68,54 @@ class _OptionParser(object):
             help='input file path',
             metavar='FILE')
 
-    def _createOptionSubparser_list(self):
+    def _create_options_subparser_list(self):
         parser = self.subparsers.add_parser(
             'list',
             description='List transactions',
             help='list transactions')
-        self._createOption_dates(parser)
-        self._createOption_descRegex(parser)
-        self._createOption_noTags(parser)
-        self._createOption_printTotal(parser)
+        self._create_option_dates(parser)
+        self._create_option_descRegex(parser)
+        self._create_option_noTags(parser)
+        self._create_option_printTotal(parser)
 
-    def _createOptionSubparser_tags(self):
+    def _create_options_subparser_tags(self):
         parser = self.subparsers.add_parser(
             'tags',
             description='List interesting facts about tags',
             help='list tags')
-        self._createOption_dates(parser)
+        self._create_option_dates(parser)
 
-    def _createOptionSubparser_classify(self):
+    def _create_options_subparser_classify(self):
         parser = self.subparsers.add_parser(
             'classify',
             description='Interactively classify transactions',
             help='classify transactions')
-        self._createOption_dates(parser)
-        self._createOption_descRegex(parser)
-        self._createOption_noTags(parser)
+        self._create_option_dates(parser)
+        self._create_option_descRegex(parser)
+        self._create_option_noTags(parser)
 
-    def _createOption_dates(self, parser):
+    def _create_option_dates(self, parser):
         parser.add_argument(
             '--dates',
             type=datetools.parseDateSequence,
             help='consider only transactions in a date range',
             dest='dates')
 
-    def _createOption_descRegex(self, parser):
+    def _create_option_descRegex(self, parser):
         parser.add_argument(
             '--desc-regex',
             help='consider only transactions with matching description',
             metavar='REGEX',
             dest='descriptionRegex')
 
-    def _createOption_noTags(self, parser):
+    def _create_option_noTags(self, parser):
         parser.add_argument(
             '--no-tags',
             action='store_true',
             help='consider only transactions without tags',
             dest='noTags')
 
-    def _createOption_printTotal(self, parser):
+    def _create_option_printTotal(self, parser):
         parser.add_argument(
             '--total',
             action='store_true',
@@ -157,7 +157,7 @@ class _ListTransactionsCommand(object):
 
     def do(self):
         allTransactions = transactions.load()
-        filteredTransactions = _filterTransactions(
+        filteredTransactions = _filter_transactions(
             allTransactions, self.options)
         for transaction in filteredTransactions:
             sys.stdout.write(formatting.formatTransactionForOneLine(transaction))
@@ -182,55 +182,55 @@ class _ListTagsCommand(object):
 
     def do(self):
         allTransactions = transactions.load()
-        filteredTransactions = _filterTransactions(
+        filteredTransactions = _filter_transactions(
             allTransactions, self.options)
         if len(filteredTransactions) == 0:
             return
 
-        transactionsByTag = _sortTransactionsByTag(filteredTransactions)
+        transactionsByTag = _sort_transactions_by_tag(filteredTransactions)
 
-        def mapTags(tokenFunc):
+        def map_tags(tokenFunc):
             return [tokenFunc(tag) for tag in transactionsByTag.iterkeys()]
 
-        def mapTransactionLists(tokenFunc):
+        def map_transaction_lists(tokenFunc):
             return [
                 tokenFunc(transactionList)
                 for transactionList in transactionsByTag.itervalues()
                 ]
 
-        def tagToken(s):
+        def tag_token(s):
             return str(s)
 
         def countToken(transactions_):
             return str(len(transactions_))
 
-        def expenseToken(transactions_):
+        def expense_token(transactions_):
             return '{0:,.2f}'.format(
                 sum([t.amount for t in transactions_ if t.amount < 0]))
 
-        def incomeToken(transactions_):
+        def income_token(transactions_):
             return '{0:,.2f}'.format(
                 sum([t.amount for t in transactions_ if t.amount > 0]))
 
-        def volumeToken(transactions_):
+        def volume_token(transactions_):
             return '{0:,.2f}'.format(
                 sum([abs(t.amount) for t in transactions_]))
 
-        def netToken(transactions_):
+        def net_token(transactions_):
             return '{0:,.2f}'.format(
                 sum([t.amount for t in transactions_]))
 
         table = formatting.ConsoleTable()
-        table.createColumn('TAG', mapTags(tagToken), alignment='left')
-        table.createColumn('COUNT', mapTransactionLists(countToken))
-        table.createColumn('EXPENSE', mapTransactionLists(expenseToken))
-        table.createColumn('INCOME', mapTransactionLists(incomeToken))
-        table.createColumn('VOLUME', mapTransactionLists(volumeToken))
-        table.createColumn('NET', mapTransactionLists(netToken))
+        table.createColumn('TAG', map_tags(tag_token), alignment='left')
+        table.createColumn('COUNT', map_transaction_lists(countToken))
+        table.createColumn('EXPENSE', map_transaction_lists(expense_token))
+        table.createColumn('INCOME', map_transaction_lists(income_token))
+        table.createColumn('VOLUME', map_transaction_lists(volume_token))
+        table.createColumn('NET', map_transaction_lists(net_token))
         table.write(sys.stdout)
 
 
-def _sortTransactionsByTag(transactions_):
+def _sort_transactions_by_tag(transactions_):
     # Discover the full set of tags.
     tags = set()
     for transaction in transactions_:
@@ -269,7 +269,7 @@ class _ClassifyTransactionsCommand(object):
 
         sys.stdout.write('Loaded %d transactions.\n' % len(allTransactions))
 
-        filteredTransactions = _filterTransactions(allTransactions, self.options)
+        filteredTransactions = _filter_transactions(allTransactions, self.options)
 
         classifying.classifyInteractively(allTransactions, filteredTransactions)
 
@@ -279,7 +279,7 @@ class _ClassifyTransactionsCommand(object):
                 len(allTransactions), transactions.cacheFilePath()))
 
 
-def _filterTransactions(allTransactions, options):
+def _filter_transactions(allTransactions, options):
     filteredTransactions = filtering.filterTransactions(
         allTransactions, options)
 
