@@ -9,14 +9,18 @@ import unittest
 # Project imports:
 import formatting
 
-class formatTransactionForOneLineTestCase(unittest.TestCase):
+
+class format_transaction_for_one_line_TestCase(unittest.TestCase):
     pass
 
-class formatTransactionForDetailTestCase(unittest.TestCase):
+
+class format_transaction_for_detail_TestCase(unittest.TestCase):
     pass
+
 
 class ConsoleTableTestCase(unittest.TestCase):
     pass
+
 
 if __name__ == '__main__':
     unittest.main()

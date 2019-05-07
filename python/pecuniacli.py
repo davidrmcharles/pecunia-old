@@ -173,7 +173,7 @@ class _ListTransactionsCommand(object):
         filtered_xactions = _filter_transactions(
             all_xactions, self.options)
         for xaction in filtered_xactions:
-            sys.stdout.write(formatting.formatTransactionForOneLine(xaction))
+            sys.stdout.write(formatting.format_transaction_for_one_line(xaction))
             sys.stdout.write('\n')
 
         if self.options.print_total:
@@ -214,7 +214,7 @@ class _ListTagsCommand(object):
         def tag_token(s):
             return str(s)
 
-        def countToken(xactions):
+        def count_token(xactions):
             return str(len(xactions))
 
         def expense_token(xactions):
@@ -234,12 +234,12 @@ class _ListTagsCommand(object):
                 sum([x.amount for x in xactions]))
 
         table = formatting.ConsoleTable()
-        table.createColumn('TAG', map_tags(tag_token), alignment='left')
-        table.createColumn('COUNT', map_transaction_lists(countToken))
-        table.createColumn('EXPENSE', map_transaction_lists(expense_token))
-        table.createColumn('INCOME', map_transaction_lists(income_token))
-        table.createColumn('VOLUME', map_transaction_lists(volume_token))
-        table.createColumn('NET', map_transaction_lists(net_token))
+        table.create_column('TAG', map_tags(tag_token), alignment='left')
+        table.create_column('COUNT', map_transaction_lists(count_token))
+        table.create_column('EXPENSE', map_transaction_lists(expense_token))
+        table.create_column('INCOME', map_transaction_lists(income_token))
+        table.create_column('VOLUME', map_transaction_lists(volume_token))
+        table.create_column('NET', map_transaction_lists(net_token))
         table.write(sys.stdout)
 
 

@@ -1,16 +1,18 @@
 '''
 Transaction formatting for the console
 
-* :func:`formatTransactionForOneLine`
-* :func:`formatTransactionForDetail`
+* :func:`format_transaction_for_one_line`
+* :func:`format_transaction_for_detail`
 * :class:`ConsoleTable`
 '''
 
 # Standard imports:
 import re
 
-def formatTransactionForOneLine(transaction):
+
+def format_transaction_for_one_line(transaction):
     return _TransactionOneLineFormatter(80).format(transaction)
+
 
 class _TransactionOneLineFormatter(object):
 
@@ -18,25 +20,25 @@ class _TransactionOneLineFormatter(object):
         self._width = width
 
     def format(self, transaction):
-        columnBudget = self._width
+        column_budget = self._width
 
-        date = self._formatDate(transaction)
-        columnBudget -= (len(date) + 1)
+        date = self._format_date(transaction)
+        column_budget -= (len(date) + 1)
 
-        amount = self._formatAmount(transaction)
-        columnBudget -= (len(amount) + 1)
+        amount = self._format_amount(transaction)
+        column_budget -= (len(amount) + 1)
 
-        tags = self._formatTags(transaction)
-        columnBudget -= len(tags)
+        tags = self._format_tags(transaction)
+        column_budget -= len(tags)
 
-        spaceForDescription = columnBudget - 1
-        description = self._formatDescription(
-            transaction, spaceForDescription)
+        space_for_description = column_budget - 1
+        description = self._format_description(
+            transaction, space_for_description)
 
         return '%s %s %s %s' % (
             date, amount, description, tags)
 
-    def _formatDate(self, transaction):
+    def _format_date(self, transaction):
         if transaction.transDate is not None:
             return transaction.transDateAsString
         elif transaction.postDate is not None:
@@ -44,68 +46,71 @@ class _TransactionOneLineFormatter(object):
         else:
             return '????-??-??'
 
-    def _formatAmount(self, transaction):
+    def _format_amount(self, transaction):
         return '%8.2f' % transaction.amount
 
-    def _formatTags(self, transaction):
+    def _format_tags(self, transaction):
         return '[%s]' % '|'.join(transaction.tags.keys())
 
-    def _formatDescription(self, transaction, width):
-        description = self._collapseSpaces(transaction.description)
+    def _format_description(self, transaction, width):
+        description = self._collapse_spaces(transaction.description)
         if len(description) > width:
-            description = self._truncateWithEllipses(description, width)
+            description = self._truncate_with_ellipses(description, width)
         if len(description) < width:
-            description = self._extendWithSpaces(description, width)
+            description = self._extend_with_spaces(description, width)
         return description
 
-    def _collapseSpaces(self, s):
+    def _collapse_spaces(self, s):
         return re.sub(r' {2,}', ' ', s)
 
-    def _truncateWithEllipses(self, s, width):
+    def _truncate_with_ellipses(self, s, width):
         return s[:width - 3] + '...'
 
-    def _extendWithSpaces(self, s, width):
+    def _extend_with_spaces(self, s, width):
         return '%s%s' % (s, (' ' * (width - len(s))))
 
-def formatTransactionForDetail(transaction):
+
+def format_transaction_for_detail(transaction):
     return '\n'.join([
-            '    type:         %s' % transaction.type,
-            '    transDate:    %s' % transaction.transDateAsString,
-            '    postDate:     %s' % transaction.postDateAsString,
-            '    description:  %s' % transaction.description,
-            '    amount:       %.2f' % transaction.amount,
-            '    tags:         %s' % ' '.join(transaction.tags),
-            ])
+        '    type:         %s' % transaction.type,
+        '    transDate:    %s' % transaction.transDateAsString,
+        '    postDate:     %s' % transaction.postDateAsString,
+        '    description:  %s' % transaction.description,
+        '    amount:       %.2f' % transaction.amount,
+        '    tags:         %s' % ' '.join(transaction.tags),
+    ])
+
 
 class ConsoleTable(object):
 
     def __init__(self):
         self.columns = []
 
-    def createColumn(self, title, tokens, alignment='right'):
+    def create_column(self, title, tokens, alignment='right'):
         self.columns.append(_ConsoleTableColumn(title, tokens, alignment))
 
-    def write(self, outputFile):
-        self._writeTitles(outputFile)
-        self._writeRows(outputFile)
+    def write(self, output_file):
+        self._write_titles(output_file)
+        self._write_rows(output_file)
 
-    def _writeTitles(self, outputFile):
-        outputFile.write(
+    def _write_titles(self, output_file):
+        output_file.write(
             '%-*s' % (
                 self.columns[0].width, self.columns[0].title))
         for column in self.columns[1:]:
-            outputFile.write('  %*s' % (column.width, column.title))
-        outputFile.write('\n')
+            output_file.write('  %*s' % (column.width, column.title))
+        output_file.write('\n')
 
-    def _visitRows(self):
-        return zip(*[column.formattedTokens for column in self.columns])
+    def _visit_rows(self):
+        return zip(*[column.formatted_tokens for column in self.columns])
 
-    def _writeRows(self, outputFile):
-        for formattedTokens in self._visitRows():
-            outputFile.write('%s' % formattedTokens[0])
-            for formattedToken in formattedTokens[1:]:
-                outputFile.write('  %s' % formattedToken)
-            outputFile.write('\n')
+    def _write_rows(self, output_file):
+        for formatted_tokens in self._visit_rows():
+            output_file.write('%s' % formatted_tokens[0])
+            for formatted_token in formatted_tokens[1:]:
+                output_file.write('  %s' % formatted_token)
+            output_file.write('\n')
+
 
 class _ConsoleTableColumn(object):
 
@@ -117,20 +122,20 @@ class _ConsoleTableColumn(object):
     @property
     def width(self):
         return max([
-                len(token)
-                for token in [self.title] + self.tokens
-                ])
+            len(token)
+            for token in [self.title] + self.tokens
+        ])
 
     @property
-    def alignmentPattern(self):
+    def alignment_pattern(self):
         if self.alignment == 'left':
             return '%-*s'
         elif self.alignment == 'right':
             return '%*s'
 
     @property
-    def formattedTokens(self):
+    def formatted_tokens(self):
         return [
-            self.alignmentPattern % (self.width, token)
+            self.alignment_pattern % (self.width, token)
             for token in self.tokens
-            ]
+        ]
