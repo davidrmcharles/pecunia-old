@@ -11,19 +11,20 @@ import traceback
 # Project imports:
 import transactions
 
-def parseFile(path):
+
+def parse_file(path):
     '''
     Parse the account-activity file at `path`.
     '''
 
     transactions = []
 
-    with open(path, 'r') as activityFile:
-        line = activityFile.readline()
-        transactionKey = parseKeyLine(line)
-        for line in activityFile.readlines():
+    with open(path, 'r') as activity_file:
+        line = activity_file.readline()
+        transaction_key = _parse_key_line(line)
+        for line in activity_file.readlines():
             try:
-                transaction = parseLine(transactionKey, line)
+                transaction = _parse_line(transaction_key, line)
             except Exception:
                 traceback.print_exc()
                 continue
@@ -33,75 +34,83 @@ def parseFile(path):
 
     return transactions
 
-def parseKeyLine(line):
+
+def _parse_key_line(line):
     '''
     Parse the `line` that explains the content of the various columns.
     '''
 
-    transactionKey = _TransactionKey()
+    transaction_key = _TransactionKey()
     tokens = line.strip().split(',')
     for index, token in enumerate(tokens):
         if token.lower() in ('posting date', 'post date'):
-            transactionKey.postDate = index
+            transaction_key.post_date = index
         elif token.lower() == 'description':
-            transactionKey.description = index
+            transaction_key.description = index
         elif token.lower() == 'amount':
-            transactionKey.amount = index
+            transaction_key.amount = index
         elif token.lower() == 'type':
-            transactionKey.type = index
+            transaction_key.type = index
         elif token.lower() == 'trans date':
-            transactionKey.transDate = index
-    return transactionKey
+            transaction_key.trans_date = index
+    return transaction_key
+
 
 class _TransactionKey(object):
 
     def __init__(self):
         self.type = None
-        self.transDate = None
-        self.postDate = None
+        self.trans_date = None
+        self.post_date = None
         self.description = None
         self.amount = None
 
-def parseLine(key, line):
+
+def _parse_line(key, line):
     '''
     Parse a single `line` of account activity.
     '''
 
     transaction = transactions.Transaction()
 
-    tokens = _splitTransactionLine(line)
-    transaction.type = _parseTransactionType(tokens[key.type])
-    if key.transDate is not None:
-        transaction.transDate = _parseTransactionDate(tokens[key.transDate])
-    transaction.postDate = _parseTransactionDate(tokens[key.postDate])
+    tokens = _split_transaction_line(line)
+    transaction.type = _parse_transaction_type(tokens[key.type])
+    if key.trans_date is not None:
+        transaction.trans_date = _parse_transaction_date(tokens[key.trans_date])
+    transaction.post_date = _parse_transaction_date(tokens[key.post_date])
     transaction.description = tokens[key.description]
     transaction.amount = float(tokens[key.amount])
 
     return transaction
 
-def _splitTransactionLine(line):
-    maybeTokens = line.strip().split(',')
+
+def _split_transaction_line(line):
+    maybe_tokens = line.strip().split(',')
 
     tokens = []
-    for maybeToken in maybeTokens:
+    for maybeToken in maybe_tokens:
         if maybeToken.startswith(' ') and (len(maybeToken) > 1):
             tokens[-1] = tokens[-1] + ',' + maybeToken
         else:
             tokens.append(maybeToken)
     return tokens
 
-def _parseTransactionType(s):
+
+def _parse_transaction_type(s):
     return s.lower()
 
-def _parseTransactionDate(s):
+
+def _parse_transaction_date(s):
     month, day, year = s.split('/')
     return datetime.date(int(year), int(month), int(day))
+
 
 def main():
     transactions = []
     for arg in sys.argv[1:]:
-        transactions.extend(parseFile(arg))
+        transactions.extend(parse_file(arg))
     sys.stdout.write('Parsed %d transactions.\n' % len(transactions))
+
 
 if __name__ == '__main__':
     main()

@@ -149,7 +149,7 @@ class _ImportTransactionsCommand(object):
 
         xactions = []
         for path in self.options.inputFilePaths:
-            xactions.extend(importing.parseFile(path))
+            xactions.extend(importing.parse_file(path))
 
         sys.stdout.write('Imported %d transactions.\n' % len(xactions))
 
