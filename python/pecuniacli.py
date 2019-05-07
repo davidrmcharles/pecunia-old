@@ -284,7 +284,7 @@ class _ClassifyTransactionsCommand(object):
 
         filtered_xactions = _filter_transactions(all_xactions, self.options)
 
-        classifying.classifyInteractively(all_xactions, filtered_xactions)
+        classifying.classify_interactively(all_xactions, filtered_xactions)
 
         transactions.store(all_xactions)
         sys.stdout.write(

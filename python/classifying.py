@@ -1,7 +1,7 @@
 '''
 Transaction classification
 
-* :func:`classifyInteractively`
+* :func:`classify_interactively`
 '''
 
 # Standard imports:
@@ -11,7 +11,8 @@ import sys
 import formatting
 import transactions
 
-def classifyInteractively(allTransactions, filteredTransactions):
+
+def classify_interactively(allTransactions, filteredTransactions):
     for index, transaction in enumerate(filteredTransactions):
         sys.stdout.write('''\
 Classifying transaction %d of %d:
@@ -42,12 +43,13 @@ You may also simply press ENTER to skip to the next transaction.
 
 ''')
 
-        _handleUserInput(
+        _handle_user_input(
             raw_input('>>> '),
             allTransactions,
             transaction)
 
-def _handleUserInput(rawInput, allTransactions, transaction):
+
+def _handle_user_input(rawInput, allTransactions, transaction):
     tokens = rawInput.strip().split()
     for token in tokens:
         if token.lower() in ('!quit', '!exit'):
@@ -60,7 +62,8 @@ def _handleUserInput(rawInput, allTransactions, transaction):
         else:
             transaction.tags.update(_parseTag(token))
 
-def _parseTag(token):
+
+def _parse_tag(token):
     if ':' in token:
         tagName, tagAmount = token.split(':')
         return {tagName: float(tagAmount)}

@@ -9,26 +9,30 @@ import unittest
 # Project imports:
 import classifying
 
-class classifyInteractivelyTestCase(unittest.TestCase):
+
+class classify_interactively_TestCase(unittest.TestCase):
     pass
 
-class handleUserInputTestCase(unittest.TestCase):
+
+class handle_user_input_TestCase(unittest.TestCase):
     pass
 
-class parseTagTestCase(unittest.TestCase):
 
-    def test_plainTag(self):
-        self.assertEqual(
-            {'food': None}, classifying._parseTag('food'))
+class parse_tag_TestCase(unittest.TestCase):
 
-    def test_tagWithSplit(self):
+    def test_plain_tag(self):
         self.assertEqual(
-            {'cash': 20.00}, classifying._parseTag('cash:20.00'))
+            {'food': None}, classifying._parse_tag('food'))
+
+    def test_tag_with_split(self):
+        self.assertEqual(
+            {'cash': 20.00}, classifying._parse_tag('cash:20.00'))
 
     @unittest.skip('TODO')
-    def test_tagWithSplitThatIsNotANumber(self):
+    def test_tag_with_split_that_is_not_a_number(self):
         self.assertEqual(
-            {}, classifying._parseTag('cash:money'))
+            {}, classifying._parse_tag('cash:money'))
+
 
 if __name__ == '__main__':
     unittest.main()
