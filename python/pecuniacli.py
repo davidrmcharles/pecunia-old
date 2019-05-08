@@ -157,7 +157,7 @@ class _ImportTransactionsCommand(object):
 
         sys.stdout.write(
             'Stored %d transcations to file "%s".\n' % (
-                len(xactions), transactions.cacheFilePath()))
+                len(xactions), transactions.database_path()))
 
 
 class _ListTransactionsCommand(object):
@@ -289,7 +289,7 @@ class _ClassifyTransactionsCommand(object):
         transactions.store(all_xactions)
         sys.stdout.write(
             'Stored %d transcations to file "%s".\n' % (
-                len(all_xactions), transactions.cacheFilePath()))
+                len(all_xactions), transactions.database_path()))
 
 
 def _filter_transactions(all_xactions, options):

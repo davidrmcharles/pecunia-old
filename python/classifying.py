@@ -58,7 +58,7 @@ def _handle_user_input(rawInput, allTransactions, transaction):
             transactions.store(allTransactions)
             sys.stdout.write(
                 'Stored %d transcations to file "%s".\n' % (
-                    len(allTransactions), transactions.cacheFilePath()))
+                    len(allTransactions), transactions.database_path()))
         else:
             transaction.tags.update(_parseTag(token))
 

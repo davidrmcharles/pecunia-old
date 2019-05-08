@@ -4,7 +4,7 @@ About transactions
 
 :func:`load`
 :func:`store`
-:func:`cacheFilePath`
+:func:`database_path`
 :class:`Transaction`
 '''
 
@@ -17,31 +17,35 @@ import os
 # Project imports:
 import datetools
 
-_thisFilePath = inspect.getfile(inspect.currentframe())
-_thisFolderPath = os.path.abspath(os.path.dirname(_thisFilePath))
-_rootFolderPath = os.path.dirname(_thisFolderPath)
-_cacheFilePath = os.path.join(
-    _rootFolderPath, 'private', 'transactions.json')
+_this_file_path = inspect.getfile(inspect.currentframe())
+_this_folder_path = os.path.abspath(os.path.dirname(_this_file_path))
+_root_folder_path = os.path.dirname(_this_folder_path)
+_database_path = os.path.join(
+    _root_folder_path, 'private', 'transactions.json')
+
 
 def load():
-    with open(_cacheFilePath, 'r') as cacheFile:
-        jsonDecodables = json.load(cacheFile)
-        transactions = [
-            Transaction.decode(jsonDecodable)
-            for jsonDecodable in jsonDecodables
+    with open(_database_path, 'r') as database_file:
+        json_decodables = json.load(database_file)
+        xactions = [
+            Transaction.decode(json_decodable)
+            for json_decodable in json_decodables
             ]
-    transactions.sort(key=lambda t: t.date, reverse=True)
-    return transactions
+    xactions.sort(key=lambda x: x.date, reverse=True)
+    return xactions
 
-def store(transactions):
-    with open(_cacheFilePath, 'w') as outputFile:
+
+def store(xactions):
+    with open(_database_path, 'w') as database_file:
         json.dump(
-            [t.encode() for t in transactions],
-            outputFile,
+            [x.encode() for x in xactions],
+            database_file,
             indent=4)
 
-def cacheFilePath():
-    return _cacheFilePath
+
+def database_path():
+    return _database_path
+
 
 class Transaction(object):
     '''
@@ -50,89 +54,64 @@ class Transaction(object):
 
     def __init__(self):
         self.type = None
-        self.transDate = None
-        self.postDate = None
+        self.trans_date = None
+        self.post_date = None
         self.description = None
         self.amount = None
         self.tags = {}
 
     @property
     def date(self):
-        if self.transDate is not None:
-            return self.transDate
-        elif self.postDate is not None:
-            return self.postDate
+        if self.trans_date is not None:
+            return self.trans_date
+        elif self.post_date is not None:
+            return self.post_date
         return None
 
     @property
-    def dateAsString(self):
+    def date_as_string(self):
         if self.date is None:
             return None
         return datetools.date_as_string(self.date)
 
     @property
-    def transDateAsString(self):
-        if self.transDate is None:
+    def trans_date_as_string(self):
+        if self.trans_date is None:
             return None
-        return datetools.date_as_string(self.transDate)
+        return datetools.date_as_string(self.trans_date)
 
     @property
-    def postDateAsString(self):
-        if self.postDate is None:
+    def post_date_as_string(self):
+        if self.post_date is None:
             return None
-        return datetools.date_as_string(self.postDate)
+        return datetools.date_as_string(self.post_date)
 
     def encode(self):
         return {
             'type': self.type,
-            'transDate': self.transDateAsString,
-            'postDate': self.postDateAsString,
+            'trans_date': self.trans_date_as_string,
+            'post_date': self.post_date_as_string,
             'description': self.description,
             'amount': self.amount,
             'tags': self.tags,
-            }
+        }
 
     @staticmethod
-    def decode(jsonDecodable):
-        t = Transaction()
-        t.type = jsonDecodable['type']
-        t.transDate = _parseTransactionDate(jsonDecodable['transDate'])
-        t.postDate = _parseTransactionDate(jsonDecodable['postDate'])
-        t.description = jsonDecodable['description']
-        t.amount = jsonDecodable['amount']
-        if 'tags' in jsonDecodable:
-            t.tags = jsonDecodable['tags']
-            if isinstance(t.tags, list):
-                t.tags = {tagName: None for tagName in t.tags}
-        return t
+    def decode(json_decodable):
+        x = Transaction()
+        x.type = json_decodable['type']
+        x.trans_date = _parse_transaction_date(json_decodable['trans_date'])
+        x.post_date = _parse_transaction_date(json_decodable['post_date'])
+        x.description = json_decodable['description']
+        x.amount = json_decodable['amount']
+        if 'tags' in json_decodable:
+            x.tags = json_decodable['tags']
+            if isinstance(x.tags, list):
+                x.tags = {tag: None for tag in x.tags}
+        return x
 
-def _parseTransactionDate(s):
+
+def _parse_transaction_date(s):
     if s is None:
         return None
     return datetools.parse_date(s)
-
-def _cumulativeCredits(transactions):
-    credits_ = 0.0
-    for transaction in transactions:
-        if transaction.amount > 0.0:
-            credits_ += transaction.amount
-    return credits_
-
-def _cumulativeDebits(transactions):
-    debits = 0.0
-    for transaction in transactions:
-        if transaction.amount < 0.0:
-            debits += transaction.amount
-    return debits
-
-def _creditVelocity(transactions):
-    minPostDate = min(transactions, key=lambda t: t.postDate).postDate
-    maxPostDate = max(transactions, key=lambda t: t.postDate).postDate
-    numberOfDays = (maxPostDate - minPostDate).days
-    return _cumulativeCredits(transactions) / float(numberOfDays)
-
-def _debitVelocity(transactions):
-    minPostDate = min(transactions, key=lambda t: t.postDate).postDate
-    maxPostDate = max(transactions, key=lambda t: t.postDate).postDate
-    numberOfDays = (maxPostDate - minPostDate).days
-    return _cumulativeDebits(transactions) / float(numberOfDays)
