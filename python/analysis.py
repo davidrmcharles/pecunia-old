@@ -15,14 +15,14 @@ def _cumulative_debits(xactions):
 
 
 def _credit_velocity(xactions):
-    minPostDate = min(xactions, key=lambda x: x.post_date).post_date
-    maxPostDate = max(xactions, key=lambda x: x.post_date).post_date
-    numberOfDays = (maxPostDate - minPostDate).days
-    return _cumulative_credits(xactions) / float(numberOfDays)
+    min_post_date = min(xactions, key=lambda x: x.post_date).post_date
+    max_post_date = max(xactions, key=lambda x: x.post_date).post_date
+    day_count = (max_post_date - min_post_date).days
+    return _cumulative_credits(xactions) / float(day_count)
 
 
 def _debit_velocity(xactions):
-    minPostDate = min(xactions, key=lambda x: x.post_date).post_date
-    maxPostDate = max(xactions, key=lambda x: x.post_date).post_date
-    numberOfDays = (maxPostDate - minPostDate).days
-    return _cumulative_debits(xactions) / float(numberOfDays)
+    min_post_date = min(xactions, key=lambda x: x.post_date).post_date
+    max_post_date = max(xactions, key=lambda x: x.post_date).post_date
+    day_count = (max_post_date - min_post_date).days
+    return _cumulative_debits(xactions) / float(day_count)
