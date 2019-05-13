@@ -39,10 +39,10 @@ class _TransactionOneLineFormatter(object):
             date, amount, description, tags)
 
     def _format_date(self, transaction):
-        if transaction.transDate is not None:
-            return transaction.transDateAsString
-        elif transaction.postDate is not None:
-            return transaction.postDateAsString
+        if transaction.trans_date is not None:
+            return transaction.trans_date_as_string
+        elif transaction.post_date is not None:
+            return transaction.post_date_as_string
         else:
             return '????-??-??'
 
@@ -73,8 +73,8 @@ class _TransactionOneLineFormatter(object):
 def format_transaction_for_detail(transaction):
     return '\n'.join([
         '    type:         %s' % transaction.type,
-        '    transDate:    %s' % transaction.transDateAsString,
-        '    postDate:     %s' % transaction.postDateAsString,
+        '    trans_date:   %s' % transaction.trans_date_as_string,
+        '    post_date:    %s' % transaction.post_date_as_string,
         '    description:  %s' % transaction.description,
         '    amount:       %.2f' % transaction.amount,
         '    tags:         %s' % ' '.join(transaction.tags),
