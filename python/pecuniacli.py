@@ -75,7 +75,7 @@ class _OptionParser(object):
             description='Import transactions from .csv files',
             help='import transactions')
         parser.add_argument(
-            'inputFilePaths',
+            'input_file_paths',
             nargs='+',
             help='input file path',
             metavar='FILE')
@@ -160,7 +160,7 @@ class _ImportTransactionsCommand(object):
         sys.stdout.write('Importing transactions.\n')
 
         xactions = []
-        for path in self.options.inputFilePaths:
+        for path in self.options.input_file_paths:
             xactions.extend(importing.parse_file(path))
 
         sys.stdout.write('Imported %d transactions.\n' % len(xactions))

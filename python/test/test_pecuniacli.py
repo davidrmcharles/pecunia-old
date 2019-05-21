@@ -54,7 +54,7 @@ class parse_options_TestCase_import(unittest.TestCase):
             options = pecuniacli._parse_options(['import', 'foo.csv'])
             self.assertIsNone(options.db_file)
             self.assertEqual('import', options.command)
-            self.assertEqual(['foo.csv'], options.inputFilePaths)
+            self.assertEqual(['foo.csv'], options.input_file_paths)
 
     def test_db_file(self):
         options = pecuniacli._parse_options([
