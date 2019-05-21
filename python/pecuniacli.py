@@ -90,6 +90,7 @@ class _OptionParser(object):
         self._create_option_exclude_regexs(parser)
         self._create_option_no_tags(parser)
         self._create_option_print_total(parser)
+        self._create_option_export_total(parser)
 
     def _create_options_subparser_tags(self):
         parser = self.subparsers.add_parser(
@@ -142,11 +143,17 @@ class _OptionParser(object):
 
     def _create_option_print_total(self, parser):
         parser.add_argument(
-            '--total',
+            '--print-total',
             action='store_true',
             help='print total amount of listed transactions',
             dest='print_total')
 
+    def _create_option_export_total(self, parser):
+        parser.add_argument(
+            '--export-total',
+            help='export total to a file',
+            metavar='FILE',
+            dest='export_total')
 
 class _ImportTransactionsCommand(object):
     '''
@@ -197,6 +204,13 @@ class _ListTransactionsCommand(object):
                 ])
             )
 
+        if self.options.export_total is not None:
+            with open(self.options.export_total, 'w') as total_file:
+                total_file.write(
+                    '%8.2f\n' % sum([
+                        x.amount for x in filtered_xactions
+                    ])
+                )
 
 class _ListTagsCommand(object):
     '''

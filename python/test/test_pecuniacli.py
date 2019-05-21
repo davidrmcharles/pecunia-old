@@ -74,6 +74,7 @@ class parse_options_TestCase_list(unittest.TestCase):
         self.assertEquals([], options.exclude_regexs)
         self.assertFalse(options.no_tags)
         self.assertFalse(options.print_total)
+        self.assertIsNone(options.export_total)
 
     def test_db_file(self):
         options = pecuniacli._parse_options(['--db-file=FILE', 'list'])
@@ -115,11 +116,15 @@ class parse_options_TestCase_list(unittest.TestCase):
         self.assertEqual('list', options.command)
         self.assertTrue(options.no_tags)
 
-    def test_print(self):
-        options = pecuniacli._parse_options(['list', '--total'])
+    def test_print_total(self):
+        options = pecuniacli._parse_options(['list', '--print-total'])
         self.assertEqual('list', options.command)
         self.assertTrue(options.print_total)
 
+    def test_export_total(self):
+        options = pecuniacli._parse_options(['list', '--export-total=FILE'])
+        self.assertEqual('list', options.command)
+        self.assertEqual('FILE', options.export_total)
 
 class parse_options_TestCase_tags(unittest.TestCase):
 
