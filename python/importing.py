@@ -74,12 +74,16 @@ def _parse_line(key, line):
     transaction = transactions.Transaction()
 
     tokens = _split_transaction_line(line)
-    transaction.type = _parse_transaction_type(tokens[key.type])
+    if key.type is not None:
+        transaction.type = _parse_transaction_type(tokens[key.type])
     if key.trans_date is not None:
         transaction.trans_date = _parse_transaction_date(tokens[key.trans_date])
-    transaction.post_date = _parse_transaction_date(tokens[key.post_date])
-    transaction.description = tokens[key.description]
-    transaction.amount = float(tokens[key.amount])
+    if key.post_date is not None:
+        transaction.post_date = _parse_transaction_date(tokens[key.post_date])
+    if key.description is not None:
+        transaction.description = tokens[key.description]
+    if key.amount is not None:
+        transaction.amount = float(tokens[key.amount])
 
     return transaction
 
@@ -101,7 +105,10 @@ def _parse_transaction_type(s):
 
 
 def _parse_transaction_date(s):
-    month, day, year = s.split('/')
+    try:
+        month, day, year = s.split('/')
+    except ValueError:
+        year, month, day = s.split('-')
     return datetime.date(int(year), int(month), int(day))
 
 

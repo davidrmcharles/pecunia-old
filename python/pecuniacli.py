@@ -185,7 +185,8 @@ class _ListTransactionsCommand(object):
         filtered_xactions = _filter_transactions(
             all_xactions, self.options)
         for xaction in filtered_xactions:
-            sys.stdout.write(formatting.format_transaction_for_one_line(xaction))
+            sys.stdout.write(
+                formatting.format_transaction_for_one_line(xaction))
             sys.stdout.write('\n')
 
         if self.options.print_total:
