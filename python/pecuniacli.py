@@ -26,6 +26,10 @@ def main():
     '''
 
     options = _parse_options()
+
+    if options.db_file is not None:
+        transactions.set_database_path(options.db_file)
+
     if options.command == 'import':
         _ImportTransactionsCommand(options).do()
     elif options.command == 'list':
@@ -45,6 +49,7 @@ class _OptionParser(object):
     def __init__(self):
         self.parser = argparse.ArgumentParser(
             description='Import and analyze bank-account activity')
+        self._create_global_options()
         self.subparsers = self.parser.add_subparsers(
             title='Command',
             dest='command',
@@ -56,6 +61,13 @@ class _OptionParser(object):
 
     def parse_args(self, args=None):
         return self.parser.parse_args(args)
+
+    def _create_global_options(self):
+        self.parser.add_argument(
+            '--db-file',
+            help='the path to the database file',
+            metavar='FILE',
+            dest='db_file')
 
     def _create_options_subparser_import(self):
         parser = self.subparsers.add_parser(

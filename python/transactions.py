@@ -5,6 +5,7 @@ About transactions
 :func:`load`
 :func:`store`
 :func:`database_path`
+:func:`set_database_path`
 :class:`Transaction`
 '''
 
@@ -45,6 +46,11 @@ def store(xactions):
 
 def database_path():
     return _database_path
+
+
+def set_database_path(path):
+    global _database_path
+    _database_path = path
 
 
 class Transaction(object):

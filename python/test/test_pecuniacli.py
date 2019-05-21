@@ -52,20 +52,32 @@ class parse_options_TestCase_import(unittest.TestCase):
     def test_with_file(self):
         with _captured_stderr():
             options = pecuniacli._parse_options(['import', 'foo.csv'])
+            self.assertIsNone(options.db_file)
             self.assertEqual('import', options.command)
             self.assertEqual(['foo.csv'], options.inputFilePaths)
+
+    def test_db_file(self):
+        options = pecuniacli._parse_options([
+            '--db-file=FILE', 'import', 'foo.csv'])
+        self.assertEqual('FILE', options.db_file)
+
 
 
 class parse_options_TestCase_list(unittest.TestCase):
 
     def test_no_args(self):
         options = pecuniacli._parse_options(['list'])
+        self.assertIsNone(options.db_file)
         self.assertEqual('list', options.command)
         self.assertIsNone(options.dates)
         self.assertEquals([], options.include_regexs)
         self.assertEquals([], options.exclude_regexs)
         self.assertFalse(options.no_tags)
         self.assertFalse(options.print_total)
+
+    def test_db_file(self):
+        options = pecuniacli._parse_options(['--db-file=FILE', 'list'])
+        self.assertEqual('FILE', options.db_file)
 
     def test_dates(self):
         options = pecuniacli._parse_options(['list', '--dates=2019-05-03'])
@@ -113,8 +125,13 @@ class parse_options_TestCase_tags(unittest.TestCase):
 
     def test_no_args(self):
         options = pecuniacli._parse_options(['tags'])
+        self.assertIsNone(options.db_file)
         self.assertEqual('tags', options.command)
         self.assertIsNone(options.dates)
+
+    def test_db_file(self):
+        options = pecuniacli._parse_options(['--db-file=FILE', 'tags'])
+        self.assertEqual('FILE', options.db_file)
 
     def test_dates_no_arg(self):
         with self.assertRaises(SystemExit):
@@ -140,9 +157,14 @@ class parse_options_TestCase_classify(unittest.TestCase):
 
     def test_no_args(self):
         options = pecuniacli._parse_options(['classify'])
+        self.assertIsNone(options.db_file)
         self.assertEqual('classify', options.command)
         self.assertFalse(options.no_tags)
         self.assertEquals([], options.include_regexs)
+
+    def test_db_file(self):
+        options = pecuniacli._parse_options(['--db-file=FILE', 'classify'])
+        self.assertEqual('FILE', options.db_file)
 
     def test_no_tags(self):
         options = pecuniacli._parse_options(['classify', '--no-tags'])
