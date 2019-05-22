@@ -2,16 +2,20 @@
 For working with dates
 
 Functions:
+
+* :func:`parse_date_sequence_file`
 * :func:`parse_date_sequence`
 * :func:`parse_date_range`
 * :func:`parse_date`
 * :func:`date_as_string`
 
 Objects:
+
 * :class:`DateSequence`
 * :class:`DateRange`
 
 Exceptions:
+
 * :class:`DateError`
 * :class:`DateParsingError`
 * :class:`InvalidDateRange`
@@ -22,16 +26,30 @@ import datetime
 import sys
 
 
+def parse_date_sequence_file(path):
+    '''
+    Convert the contents of the file at `path` to a :class:`DateSequence`.
+    '''
+
+    result = DateSequence([])
+    with open(path, 'r') as date_sequence_file:
+        return parse_date_sequence(
+            date_sequence_file.read().strip().replace('\n', ','))
+    return result
+
+
 def parse_date_sequence(s):
     '''
     Convert the string representation of a date sequence to its object
-    represenation.
+    representation.
     '''
 
     try:
         dates = []
         for subtoken in s.split(','):
-            if '..' in subtoken:
+            if subtoken == '':
+                continue
+            elif '..' in subtoken:
                 dates.append(parse_date_range(subtoken))
             else:
                 dates.append(parse_date(subtoken))
@@ -109,6 +127,13 @@ class DateSequence(object):
     def __init__(self, dates):
         self.dates = dates
 
+    def __repr__(self):
+        return '[%s]' % (
+            ', '.join([
+                date.__repr__()
+                for date in self.dates])
+        )
+
     def __contains__(self, date):
         if not isinstance(date, datetime.date):
             raise TypeError(
@@ -145,6 +170,9 @@ class DateSequence(object):
 
     def __hash__(self):
         return hash(tuple(self.dates))
+
+    def extend(self, other):
+        self.dates.extend(other.dates)
 
 
 class DateRange(object):
