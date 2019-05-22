@@ -8,6 +8,9 @@ Transaction filtering
 import re
 import sys
 
+# Project imports:
+import datetools
+
 
 def filter_transactions(xactions, options):
     '''
@@ -16,9 +19,16 @@ def filter_transactions(xactions, options):
 
     filtered_xactions = xactions
 
+    date_sequence = datetools.DateSequence([])
     if hasattr(options, 'dates') and options.dates is not None:
+        date_sequence.extend(options.dates)
+    if hasattr(options, 'dates_files'):
+        for dates_file in options.dates_files:
+            date_sequence.extend(
+                datetools.parse_date_sequence_file(dates_file))
+    if not date_sequence.is_empty:
         filtered_xactions = _filter_transactions_with_non_matching_dates(
-            filtered_xactions, options.dates)
+            filtered_xactions, date_sequence)
 
     if hasattr(options, 'include_regexs') and len(options.include_regexs) > 0:
         filtered_xactions = _filter_transactions_with_non_matching_descriptions(

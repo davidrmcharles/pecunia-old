@@ -171,6 +171,10 @@ class DateSequence(object):
     def __hash__(self):
         return hash(tuple(self.dates))
 
+    @property
+    def is_empty(self):
+        return len(self.dates) == 0
+
     def extend(self, other):
         self.dates.extend(other.dates)
 
