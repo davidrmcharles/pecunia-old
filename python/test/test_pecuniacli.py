@@ -88,6 +88,18 @@ class parse_options_TestCase_list(unittest.TestCase):
             options.dates
         )
 
+    def test_dates_files(self):
+        options = pecuniacli._parse_options([
+            'list', '--dates-file=dates.txt'])
+        self.assertEqual('list', options.command)
+        self.assertEqual(['dates.txt'], options.dates_files)
+
+    def test_dates_files_twice(self):
+        options = pecuniacli._parse_options([
+            'list', '--dates-file=dates.txt', '--dates-file=more-dates.txt'])
+        self.assertEqual('list', options.command)
+        self.assertEqual(['dates.txt', 'more-dates.txt'], options.dates_files)
+
     def test_include(self):
         options = pecuniacli._parse_options(['list', '--include=foo'])
         self.assertEqual('list', options.command)
@@ -144,18 +156,28 @@ class parse_options_TestCase_tags(unittest.TestCase):
                 pecuniacli._parse_options(['tags', '--dates'])
 
     def test_dates_one_date(self):
-        options = pecuniacli._parse_options(['tags', '--date=2018-09-14'])
+        options = pecuniacli._parse_options(['tags', '--dates=2018-09-14'])
         self.assertEqual(
             datetools.DateSequence([datetime.date(2018, 9, 14)]),
             options.dates)
 
     def test_dates_after_date(self):
-        options = pecuniacli._parse_options(['tags', '--date=2018-09-14..'])
+        options = pecuniacli._parse_options(['tags', '--dates=2018-09-14..'])
         self.assertEqual(
             datetools.DateSequence([
-                    datetools.DateRange(datetime.date(2018, 9, 14), None),
+                datetools.DateRange(datetime.date(2018, 9, 14), None),
             ]),
             options.dates)
+
+    def test_dates_files(self):
+        options = pecuniacli._parse_options([
+            'tags', '--dates-file=dates.txt'])
+        self.assertEqual(['dates.txt'], options.dates_files)
+
+    def test_dates_files_twice(self):
+        options = pecuniacli._parse_options([
+            'tags', '--dates-file=dates.txt', '--dates-file=more-dates.txt'])
+        self.assertEqual(['dates.txt', 'more-dates.txt'], options.dates_files)
 
 
 class parse_options_TestCase_classify(unittest.TestCase):
@@ -170,6 +192,16 @@ class parse_options_TestCase_classify(unittest.TestCase):
     def test_db_file(self):
         options = pecuniacli._parse_options(['--db-file=FILE', 'classify'])
         self.assertEqual('FILE', options.db_file)
+
+    def test_dates_files(self):
+        options = pecuniacli._parse_options([
+            'classify', '--dates-file=dates.txt'])
+        self.assertEqual(['dates.txt'], options.dates_files)
+
+    def test_dates_files_twice(self):
+        options = pecuniacli._parse_options([
+            'classify', '--dates-file=dates.txt', '--dates-file=more-dates.txt'])
+        self.assertEqual(['dates.txt', 'more-dates.txt'], options.dates_files)
 
     def test_no_tags(self):
         options = pecuniacli._parse_options(['classify', '--no-tags'])

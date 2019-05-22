@@ -86,6 +86,7 @@ class _OptionParser(object):
             description='List transactions',
             help='list transactions')
         self._create_option_dates(parser)
+        self._create_option_dates_files(parser)
         self._create_option_include_regexs(parser)
         self._create_option_exclude_regexs(parser)
         self._create_option_no_tags(parser)
@@ -98,6 +99,7 @@ class _OptionParser(object):
             description='List interesting facts about tags',
             help='list tags')
         self._create_option_dates(parser)
+        self._create_option_dates_files(parser)
 
     def _create_options_subparser_classify(self):
         parser = self.subparsers.add_parser(
@@ -105,6 +107,7 @@ class _OptionParser(object):
             description='Interactively classify transactions',
             help='classify transactions')
         self._create_option_dates(parser)
+        self._create_option_dates_files(parser)
         self._create_option_include_regexs(parser)
         self._create_option_exclude_regexs(parser)
         self._create_option_no_tags(parser)
@@ -115,6 +118,15 @@ class _OptionParser(object):
             type=datetools.parse_date_sequence,
             help='consider only transactions in a date range',
             dest='dates')
+
+    def _create_option_dates_files(self, parser):
+        parser.add_argument(
+            '--dates-file',
+            action='append',
+            default=[],
+            help='load date ranges from a file',
+            metavar='FILE',
+            dest='dates_files')
 
     def _create_option_include_regexs(self, parser):
         parser.add_argument(
